@@ -22,9 +22,11 @@ export default async function AppDetailPage({ params }: Props) {
       <h1>{app.name}</h1>
       <p className="meta">Key: {app.appKey}</p>
       <p>{app.description}</p>
-      <button className="cta" disabled>
-        {app.install.ctaLabel}
-      </button>
+      
+      {/* Atlassian pattern: Install button is active - click to login if needed */}
+      <Link href={`/install/${app.appKey}`} className="cta-button">
+        Install
+      </Link>
     </main>
   );
 }
