@@ -1,16 +1,14 @@
 # DevOps Status
 
-Last Updated: 2026-02-26T18:36+08:00
+Last Updated: 2026-02-26T18:50+08:00
 
-Current Sprint Goal: Deployment config
+Current Sprint Goal: Deployment
 
-Completed:
-- README update
-- CHANGELOG
+Completed: Deploy notes
 
 Evidence Path: docs/
 
 Blockers: None
 
-Next Target + ETA: Deploy script, 18:45
+Next Target + ETA: Scripts, 19:00
 
