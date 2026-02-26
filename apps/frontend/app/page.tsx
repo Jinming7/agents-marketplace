@@ -1,10 +1,14 @@
 import Link from "next/link";
-import { fetchApps } from "../lib/api";
 
 export const dynamic = "force-dynamic";
 
 export default async function AppListPage() {
-  const data = await fetchApps();
+  // Simple static list - API integration coming soon
+  const apps = [
+    { appKey: "slack", name: "Slack", summary: "Send alerts to Slack" },
+    { appKey: "github", name: "GitHub", summary: "Connect repo events" },
+    { appKey: "notion", name: "Notion", summary: "Sync docs and tasks" }
+  ];
 
   return (
     <main>
@@ -14,19 +18,12 @@ export default async function AppListPage() {
         <Link href="/auth/login">Login</Link> · <Link href="/auth/register">Register</Link>
       </p>
       <div className="grid">
-        {data.items.map((item) => (
+        {apps.map((item) => (
           <article className="card" key={item.appKey}>
-            <h2>
-              <Link href={`/apps/${item.appKey}`}>{item.name}</Link>
-            </h2>
+            <h2>{item.name}</h2>
             <p className="meta">{item.summary}</p>
             <div className="card-actions">
-              <Link href={`/apps/${item.appKey}`} className="secondary">
-                View
-              </Link>
-              <Link href={`/install/${item.appKey}`} className="cta">
-                Install
-              </Link>
+              <Link href={`/apps/${item.appKey}`} className="secondary">View</Link>
             </div>
           </article>
         ))}
