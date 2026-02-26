@@ -36,17 +36,40 @@ function AppDetail() {
       .catch(() => setLoading(false))
   }, [appId])
 
-  const handleInstall = () => {
+  const handleInstall = async () => {
     if (!user) {
       navigate('/auth/login')
       return
     }
     
+    const token = localStorage.getItem('token')
+    if (!token) {
+      navigate('/auth/login')
+      return
+    }
+    
     setInstalling(true)
-    setTimeout(() => {
-      setInstalling(false)
-      alert('App installed successfully!')
-    }, 1000)
+    
+    try {
+      const res = await fetch('http://localhost:3001/api/user/installations', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ appId })
+      })
+      
+      if (res.ok) {
+        alert('App installed successfully!')
+      } else {
+        alert('Failed to install app')
+      }
+    } catch (error) {
+      alert('An error occurred')
+    }
+    
+    setInstalling(false)
   }
 
   if (loading) {
@@ -62,9 +85,30 @@ function AppDetail() {
     )
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    setUser(null)
+  }
+
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: '20px' }}>
-      <Link to="/" style={{ color: '#0070f3', textDecoration: 'none' }}>← Back to Apps</Link>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <Link to="/" style={{ color: '#0070f3', textDecoration: 'none' }}>← Back to Apps</Link>
+        {user && (
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <Link to="/my-apps" style={{ padding: '8px 16px', border: '1px solid #ddd', background: 'white', borderRadius: '6px', textDecoration: 'none', color: '#333' }}>
+              📦 My Apps
+            </Link>
+            <Link to="/profile" style={{ padding: '8px 16px', border: '1px solid #ddd', background: 'white', borderRadius: '6px', textDecoration: 'none', color: '#333' }}>
+              👤 Profile
+            </Link>
+            <button onClick={handleLogout} style={{ padding: '8px 16px', border: '1px solid #ddd', background: 'white', borderRadius: '6px', cursor: 'pointer' }}>
+              Logout
+            </button>
+          </div>
+        )}
+      </div>
       
       <div style={{ marginTop: '30px', background: 'white', borderRadius: '12px', padding: '30px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
