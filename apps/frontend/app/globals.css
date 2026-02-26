@@ -1,0 +1,57 @@
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Avenir Next", "Helvetica Neue", sans-serif;
+  background: radial-gradient(circle at top, #eef7ff, #f8fbff 45%, #ffffff 100%);
+  color: #10213d;
+  margin: 0;
+}
+
+main {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 4rem;
+}
+
+h1,
+h2 {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #d9e7f7;
+  border-radius: 14px;
+  padding: 1rem;
+  box-shadow: 0 8px 24px rgba(24, 68, 125, 0.08);
+}
+
+.grid {
+  margin-top: 1.25rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.meta {
+  color: #4f627f;
+}
+
+.cta {
+  margin-top: 1rem;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 999px;
+  background: #d9e7f7;
+  color: #4f627f;
+  cursor: not-allowed;
+}
