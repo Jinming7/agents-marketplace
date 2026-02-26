@@ -195,7 +195,7 @@ app.get("/api/apps/search", async (req: Request, res: Response) => {
   let query = supabase.from("apps").select("app_key,name,summary,description", { count: "exact" }).limit(50);
 
   if (normalized) {
-    query = query.or(`name.ilike.%${normalized}%,summary.ilike.%${normalized}%`);
+    query = query.or(`name.ilike.*${normalized}*,summary.ilike.*${normalized}*`);
   }
 
   const { data, error, count } = await query;
