@@ -18,7 +18,6 @@ function Home() {
   const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
-    // Check login status
     const userData = localStorage.getItem('user')
     if (userData) {
       setUser(JSON.parse(userData))
@@ -49,53 +48,48 @@ function Home() {
   const categories = [...new Set(apps.map(a => a.category))]
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
-      <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+      <header style={{ marginBottom: '40px', padding: '20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
         <div>
-          <h1 style={{ fontSize: '48px', marginBottom: '10px' }}>Marketplace</h1>
+          <h1 style={{ fontSize: '48px', marginBottom: '10px', background: 'linear-gradient(135deg, #0070f3, #00d4ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Marketplace</h1>
           <p style={{ color: '#666', fontSize: '18px' }}>Discover and install apps for your team</p>
         </div>
         <div>
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-              <span>{user.email}</span>
-              <button onClick={handleLogout} style={{ padding: '8px 16px', border: '1px solid #ddd', background: 'white', borderRadius: '6px', cursor: 'pointer' }}>
+              <span style={{ fontWeight: '500', color: '#333' }}>{user.email}</span>
+              <button onClick={handleLogout} style={{ padding: '10px 20px', border: '1px solid #ddd', background: 'white', borderRadius: '8px', cursor: 'pointer' }}>
                 Logout
               </button>
             </div>
           ) : (
-            <Link to="/auth/login" style={{ padding: '8px 16px', background: '#0070f3', color: 'white', borderRadius: '6px', textDecoration: 'none' }}>
+            <Link to="/auth/login" style={{ padding: '10px 24px', background: 'linear-gradient(135deg, #0070f3, #0051d4)', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '500' }}>
               Login
             </Link>
           )}
         </div>
       </header>
 
-      <div style={{ marginBottom: '20px' }}>
+      <div style={{ marginBottom: '30px' }}>
         <input
           type="text"
-          placeholder="Search apps..."
+          placeholder="🔍 Search apps..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '15px 20px',
-            fontSize: '16px',
-            border: '1px solid #ddd',
-            borderRadius: '8px',
-            marginBottom: '15px'
-          }}
+          className="form-input"
+          style={{ marginBottom: '20px', fontSize: '16px' }}
         />
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <button
             onClick={() => setCategory('')}
             style={{
-              padding: '8px 16px',
-              border: !category ? '#0070f3' : '#ddd',
-              background: !category ? '#0070f3' : 'white',
+              padding: '8px 20px',
+              border: !category ? 'none' : '1px solid #ddd',
+              background: !category ? 'linear-gradient(135deg, #0070f3, #0051d4)' : 'white',
               color: !category ? 'white' : '#333',
-              borderRadius: '20px',
-              cursor: 'pointer'
+              borderRadius: '25px',
+              cursor: 'pointer',
+              fontWeight: '500'
             }}
           >
             All
@@ -105,12 +99,13 @@ function Home() {
               key={cat}
               onClick={() => setCategory(cat)}
               style={{
-                padding: '8px 16px',
-                border: category === cat ? '#0070f3' : '#ddd',
-                background: category === cat ? '#0070f3' : 'white',
+                padding: '8px 20px',
+                border: category === cat ? 'none' : '1px solid #ddd',
+                background: category === cat ? 'linear-gradient(135deg, #0070f3, #0051d4)' : 'white',
                 color: category === cat ? 'white' : '#333',
-                borderRadius: '20px',
-                cursor: 'pointer'
+                borderRadius: '25px',
+                cursor: 'pointer',
+                fontWeight: '500'
               }}
             >
               {cat}
@@ -120,36 +115,43 @@ function Home() {
       </div>
 
       {loading ? (
-        <p style={{ textAlign: 'center' }}>Loading...</p>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
-          {filteredApps.map(app => (
-            <Link
-              key={app.id}
-              to={`/app/${app.id}`}
-              style={{ textDecoration: 'none', color: 'inherit' }}
-            >
-              <div style={{
-                border: '1px solid #eee',
-                borderRadius: '12px',
-                padding: '20px',
-                background: 'white',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                transition: 'transform 0.2s',
-                cursor: 'pointer'
-              }}>
-                <h3 style={{ marginBottom: '8px' }}>{app.name}</h3>
-                <p style={{ color: '#666', marginBottom: '12px' }}>{app.description}</p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ background: '#e0f0ff', padding: '4px 12px', borderRadius: '12px', fontSize: '12px' }}>
-                    {app.category}
-                  </span>
-                  <span style={{ color: '#ffa500' }}>★ {app.rating}</span>
-                </div>
-              </div>
-            </Link>
-          ))}
+        <div style={{ textAlign: 'center', padding: '60px' }}>
+          <div className="loading-spinner" style={{ width: '40px', height: '40px', border: '4px solid #f3f3f3', borderTop: '4px solid #0070f3', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }}></div>
+          <p style={{ marginTop: '15px', color: '#666' }}>Loading apps...</p>
         </div>
+      ) : (
+        <>
+          <p style={{ marginBottom: '20px', color: '#666' }}>Showing {filteredApps.length} apps</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '25px' }}>
+            {filteredApps.map(app => (
+              <Link
+                key={app.id}
+                to={`/app/${app.id}`}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                <div className="app-card" style={{
+                  border: '1px solid rgba(0, 0, 0, 0.08)',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  background: 'white',
+                  boxShadow: '0 2px 12px rgba(0, 0, 0, 0.06)'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                    <h3 style={{ fontSize: '20px', fontWeight: '600' }}>{app.name}</h3>
+                    <span style={{ color: '#ffa500', fontSize: '18px' }}>★ {app.rating}</span>
+                  </div>
+                  <p style={{ color: '#666', marginBottom: '16px', lineHeight: '1.5' }}>{app.description}</p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ background: 'linear-gradient(135deg, #e8f4ff, #d0e8ff)', padding: '6px 14px', borderRadius: '20px', fontSize: '13px', color: '#0070f3', fontWeight: '500' }}>
+                      {app.category}
+                    </span>
+                    <span style={{ color: '#999', fontSize: '13px' }}>{app.installs.toLocaleString()} installs</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </>
       )}
     </div>
   )
