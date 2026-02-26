@@ -1,3 +1,0 @@
-# Deployment
-STAGING=1
-

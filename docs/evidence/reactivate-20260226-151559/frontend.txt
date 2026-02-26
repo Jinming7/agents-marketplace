@@ -1,4 +1,0 @@
-timestamp=2026-02-26T07:15:59Z
-session=agent:ones-marketplace-frontend-architect:main
-artifact=commit:6a52b8a
-reproduce=cd /Users/jeremypeng/agents-marketplace && npm run build --workspace @marketplace/frontend

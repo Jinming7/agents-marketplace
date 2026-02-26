@@ -1,9 +1,0 @@
-HTTP/1.1 201 Created
-X-Powered-By: Express
-Content-Type: application/json; charset=utf-8
-Content-Length: 111
-ETag: W/"6f-6XxegF+GzCazkjjW8OBEgsUcThI"
-Date: Thu, 26 Feb 2026 07:00:47 GMT
-Connection: keep-alive
-Keep-Alive: timeout=5
-
