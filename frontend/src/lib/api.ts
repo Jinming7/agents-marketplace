@@ -49,7 +49,12 @@ function mapAppSummary(data: UnknownRecord): AppCardModel | null {
 
   const hosting = toHostingKinds(data.compatibility ?? data.hosting);
   const minOnesVersion = typeof data.min_ones_version === "string" ? data.min_ones_version : typeof data.minOnesVersion === "string" ? data.minOnesVersion : undefined;
-  const hot = typeof data.install_count_7d === "number" ? data.install_count_7d : Number(data.install_count_7d ?? data.installs ?? 0);
+  const hot =
+    typeof data.installCount7d === "number"
+      ? data.installCount7d
+      : typeof data.install_count_7d === "number"
+        ? data.install_count_7d
+        : Number(data.installCount7d ?? data.install_count_7d ?? data.installs ?? 0);
 
   return {
     id: String(data.id ?? data.key ?? ""),
@@ -79,13 +84,17 @@ function mapAppSummary(data: UnknownRecord): AppCardModel | null {
 }
 
 export async function searchApps(): Promise<AppCardModel[]> {
-  const response = await fetch(`${API_BASE_URL}/api/apps/search?sortBy=top-selling&page=1&limit=50`, { cache: "no-store" });
+  const response = await fetch(`${API_BASE_URL}/api/apps/search?sortBy=hot&page=1&limit=50`, { cache: "no-store" });
   if (!response.ok) {
     await parseError(response);
   }
 
   const data = (await response.json()) as UnknownRecord;
-  const appsRaw = ((data._embedded as UnknownRecord | undefined)?.apps ?? []) as UnknownRecord[];
+  const appsRaw = (Array.isArray(data.apps)
+    ? data.apps
+    : Array.isArray((data._embedded as UnknownRecord | undefined)?.apps)
+      ? (data._embedded as UnknownRecord).apps
+      : []) as UnknownRecord[];
 
   return appsRaw
     .map(mapAppSummary)

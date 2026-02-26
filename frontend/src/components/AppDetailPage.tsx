@@ -300,8 +300,13 @@ function InstallationPanel({ hosting }: { hosting: HostingKind }) {
   if (hosting === "cloud") {
     return (
       <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-6">
-        <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
-          One-click Install
+        <button
+          type="button"
+          disabled
+          aria-disabled="true"
+          className="cursor-not-allowed rounded-lg border border-gray-300 bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-500"
+        >
+          One-click Install (Coming Soon)
         </button>
         <div>
           <p className="text-sm font-medium text-gray-900">Permissions Required</p>
@@ -331,12 +336,16 @@ function InstallationPanel({ hosting }: { hosting: HostingKind }) {
             <tr>
               <td className="border border-gray-200 px-3 py-2">2.4.1</td>
               <td className="border border-gray-200 px-3 py-2">2026-01-28</td>
-              <td className="border border-gray-200 px-3 py-2"><a href="#" className="text-blue-600 hover:underline">Download JAR</a></td>
+              <td className="border border-gray-200 px-3 py-2">
+                <span className="cursor-not-allowed text-gray-400">Download JAR (Coming Soon)</span>
+              </td>
             </tr>
             <tr>
               <td className="border border-gray-200 px-3 py-2">2.4.0</td>
               <td className="border border-gray-200 px-3 py-2">2025-12-14</td>
-              <td className="border border-gray-200 px-3 py-2"><a href="#" className="text-blue-600 hover:underline">Download OBR</a></td>
+              <td className="border border-gray-200 px-3 py-2">
+                <span className="cursor-not-allowed text-gray-400">Download OBR (Coming Soon)</span>
+              </td>
             </tr>
           </tbody>
         </table>
