@@ -1,0 +1,10 @@
+HTTP/1.1 500 Internal Server Error
+X-Powered-By: Express
+Access-Control-Allow-Origin: *
+Content-Type: application/json; charset=utf-8
+Content-Length: 63
+ETag: W/"3f-0AeYaMRQhhLd+QOLPIK1JYVnx2I"
+Date: Thu, 26 Feb 2026 02:27:26 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+

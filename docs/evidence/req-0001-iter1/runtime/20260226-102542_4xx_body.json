@@ -1,0 +1,1 @@
+{"code":"APP_INVALID_PARAMS","message":"Validation failed","issues":[{"code":"too_small","minimum":0,"type":"number","inclusive":false,"exact":false,"message":"Number must be greater than 0","path":["page"]}]}
