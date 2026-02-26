@@ -57,7 +57,12 @@ function Home() {
         <div>
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-              <span style={{ fontWeight: '500', color: '#333' }}>{user.email}</span>
+              <Link to="/my-apps" style={{ padding: '10px 20px', border: '1px solid #ddd', background: 'white', borderRadius: '8px', textDecoration: 'none', color: '#333', cursor: 'pointer' }}>
+                📦 My Apps
+              </Link>
+              <Link to="/profile" style={{ padding: '10px 20px', border: '1px solid #ddd', background: 'white', borderRadius: '8px', textDecoration: 'none', color: '#333', cursor: 'pointer' }}>
+                👤 Profile
+              </Link>
               <button onClick={handleLogout} style={{ padding: '10px 20px', border: '1px solid #ddd', background: 'white', borderRadius: '8px', cursor: 'pointer' }}>
                 Logout
               </button>

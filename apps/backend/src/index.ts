@@ -81,6 +81,101 @@ app.post('/api/auth/login', (req, res) => {
   res.json({ token: 'mock-token-' + Date.now(), user: { email } })
 })
 
+// User installations (mock database)
+const userInstallations: Record<string, string[]> = {
+  'user@example.com': ['1', '3'] // Example: user has Slack and Confluence
+}
+
+// Profile data (mock)
+const userProfiles: Record<string, { name: string; avatar?: string; bio?: string; notifications: boolean }> = {}
+
+// User installations API
+app.get('/api/user/installations', (req, res) => {
+  const authHeader = req.headers.authorization
+  if (!authHeader) {
+    return res.status(401).json({ error: 'AUTH_REQUIRED' })
+  }
+  
+  // Mock user email (in real app, get from token)
+  const email = 'user@example.com'
+  const installedAppIds = userInstallations[email] || []
+  
+  const installedApps = apps.filter(app => installedAppIds.includes(app.id))
+  res.json({ apps: installedApps, total: installedApps.length })
+})
+
+app.post('/api/user/installations', (req, res) => {
+  const authHeader = req.headers.authorization
+  if (!authHeader) {
+    return res.status(401).json({ error: 'AUTH_REQUIRED' })
+  }
+  
+  const { appId } = req.body
+  if (!appId) {
+    return res.status(400).json({ error: 'APP_ID_REQUIRED' })
+  }
+  
+  const app = apps.find(a => a.id === appId)
+  if (!app) {
+    return res.status(404).json({ error: 'APP_NOT_FOUND' })
+  }
+  
+  const email = 'user@example.com'
+  if (!userInstallations[email]) {
+    userInstallations[email] = []
+  }
+  
+  if (!userInstallations[email].includes(appId)) {
+    userInstallations[email].push(appId)
+  }
+  
+  res.json({ success: true, message: 'App installed successfully' })
+})
+
+app.delete('/api/user/installations/:appId', (req, res) => {
+  const authHeader = req.headers.authorization
+  if (!authHeader) {
+    return res.status(401).json({ error: 'AUTH_REQUIRED' })
+  }
+  
+  const email = 'user@example.com'
+  if (userInstallations[email]) {
+    userInstallations[email] = userInstallations[email].filter(id => id !== req.params.appId)
+  }
+  
+  res.json({ success: true, message: 'App uninstalled successfully' })
+})
+
+// User profile API
+app.get('/api/user/profile', (req, res) => {
+  const authHeader = req.headers.authorization
+  if (!authHeader) {
+    return res.status(401).json({ error: 'AUTH_REQUIRED' })
+  }
+  
+  const email = 'user@example.com'
+  const profile = userProfiles[email] || { name: 'User', notifications: true }
+  res.json({ ...profile, email })
+})
+
+app.put('/api/user/profile', (req, res) => {
+  const authHeader = req.headers.authorization
+  if (!authHeader) {
+    return res.status(401).json({ error: 'AUTH_REQUIRED' })
+  }
+  
+  const email = 'user@example.com'
+  const { name, bio, notifications } = req.body
+  
+  userProfiles[email] = {
+    name: name || 'User',
+    bio: bio || '',
+    notifications: notifications !== undefined ? notifications : true
+  }
+  
+  res.json({ success: true, message: 'Profile updated successfully' })
+})
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
