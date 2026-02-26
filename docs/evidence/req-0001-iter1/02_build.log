@@ -1,0 +1,41 @@
+
+> build
+> npm run build -w backend && npm run build -w frontend
+
+
+> ones-marketplace-backend@0.1.0 build
+> tsc -p tsconfig.json
+
+
+> ones-marketplace-frontend@0.1.0 build
+> next build
+
+   ▲ Next.js 15.1.4
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Skipping linting
+   Checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/4) ...
+   Generating static pages (1/4) 
+   Generating static pages (2/4) 
+   Generating static pages (3/4) 
+ ✓ Generating static pages (4/4)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    12.9 kB         124 kB
+├ ○ /_not-found                          979 B           106 kB
+├ ƒ /app/[appId]                         137 B           119 kB
+└ ƒ /apps/[appKey]                       137 B           119 kB
++ First Load JS shared by all            105 kB
+  ├ chunks/239-6eef3137a8cd2479.js       50.4 kB
+  ├ chunks/c7879cf7-1e99505089e8caef.js  53 kB
+  └ other shared chunks (total)          1.9 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

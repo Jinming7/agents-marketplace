@@ -1,0 +1,9 @@
+commit 983fbbf1eed29290ee4b665b6ad87630fec589c3
+Author: Jinming7 <411263626@qq.com>
+Date:   Thu Feb 26 10:02:43 2026 +0800
+
+    feat(req-0001): align read-only app list/detail UI with backend
+
+ frontend/src/components/AppDetailPage.tsx | 17 +++++++++++++----
+ frontend/src/lib/api.ts                   | 15 ++++++++++++---
+ 2 files changed, 25 insertions(+), 7 deletions(-)
