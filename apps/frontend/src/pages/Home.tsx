@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 
 interface App {
   id: string
@@ -13,6 +14,7 @@ function Home() {
   const [apps, setApps] = useState<App[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [category, setCategory] = useState('')
 
   useEffect(() => {
     fetch('http://localhost:3001/api/apps')
@@ -24,10 +26,14 @@ function Home() {
       .catch(() => setLoading(false))
   }, [])
 
-  const filteredApps = apps.filter(app => 
-    app.name.toLowerCase().includes(search.toLowerCase()) ||
-    app.description.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredApps = apps.filter(app => {
+    const matchSearch = app.name.toLowerCase().includes(search.toLowerCase()) ||
+      app.description.toLowerCase().includes(search.toLowerCase())
+    const matchCategory = !category || app.category === category
+    return matchSearch && matchCategory
+  })
+
+  const categories = [...new Set(apps.map(a => a.category))]
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
@@ -36,7 +42,7 @@ function Home() {
         <p style={{ color: '#666', fontSize: '18px' }}>Discover and install apps for your team</p>
       </header>
 
-      <div style={{ marginBottom: '30px' }}>
+      <div style={{ marginBottom: '20px' }}>
         <input
           type="text"
           placeholder="Search apps..."
@@ -47,9 +53,41 @@ function Home() {
             padding: '15px 20px',
             fontSize: '16px',
             border: '1px solid #ddd',
-            borderRadius: '8px'
+            borderRadius: '8px',
+            marginBottom: '15px'
           }}
         />
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setCategory('')}
+            style={{
+              padding: '8px 16px',
+              border: !category ? '#0070f3' : '#ddd',
+              background: !category ? '#0070f3' : 'white',
+              color: !category ? 'white' : '#333',
+              borderRadius: '20px',
+              cursor: 'pointer'
+            }}
+          >
+            All
+          </button>
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setCategory(cat)}
+              style={{
+                padding: '8px 16px',
+                border: category === cat ? '#0070f3' : '#ddd',
+                background: category === cat ? '#0070f3' : 'white',
+                color: category === cat ? 'white' : '#333',
+                borderRadius: '20px',
+                cursor: 'pointer'
+              }}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (
@@ -57,22 +95,30 @@ function Home() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
           {filteredApps.map(app => (
-            <div key={app.id} style={{
-              border: '1px solid #eee',
-              borderRadius: '12px',
-              padding: '20px',
-              background: 'white',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-            }}>
-              <h3 style={{ marginBottom: '8px' }}>{app.name}</h3>
-              <p style={{ color: '#666', marginBottom: '12px' }}>{app.description}</p>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ background: '#e0f0ff', padding: '4px 12px', borderRadius: '12px', fontSize: '12px' }}>
-                  {app.category}
-                </span>
-                <span style={{ color: '#ffa500' }}>★ {app.rating}</span>
+            <Link
+              key={app.id}
+              to={`/app/${app.id}`}
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <div style={{
+                border: '1px solid #eee',
+                borderRadius: '12px',
+                padding: '20px',
+                background: 'white',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                transition: 'transform 0.2s',
+                cursor: 'pointer'
+              }}>
+                <h3 style={{ marginBottom: '8px' }}>{app.name}</h3>
+                <p style={{ color: '#666', marginBottom: '12px' }}>{app.description}</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ background: '#e0f0ff', padding: '4px 12px', borderRadius: '12px', fontSize: '12px' }}>
+                    {app.category}
+                  </span>
+                  <span style={{ color: '#ffa500' }}>★ {app.rating}</span>
+                </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}
