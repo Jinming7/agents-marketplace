@@ -1,0 +1,4 @@
+timestamp=2026-02-26T07:15:59Z
+session=agent:ones-marketplace-qa-architect:main
+artifact=path:docs/evidence/auth-p0-ui-20260226-150041/me401.headers
+reproduce=curl -i http://127.0.0.1:3014/api/auth/me
