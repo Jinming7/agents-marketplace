@@ -2,5 +2,24 @@
   "name": "agents-marketplace",
   "version": "1.0.0-p0",
   "private": true,
-  "workspaces": ["apps/*"]
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "npm run dev --workspace @marketplace/frontend",
+    "build": "npm run build --workspace @marketplace/frontend",
+    "start": "npm run start --workspace @marketplace/frontend",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:fix": "npm run lint:fix --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:ci": "npm run test:ci --workspaces --if-present",
+    "clean": "rm -rf node_modules .next apps/*/node_modules apps/*/.next",
+    "rebuild": "npm run clean && npm install && npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
 }

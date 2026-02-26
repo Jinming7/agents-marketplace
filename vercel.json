@@ -4,5 +4,57 @@
   "installCommand": "npm install",
   "buildCommand": "npm run build --workspace @marketplace/frontend",
   "outputDirectory": "apps/frontend/.next",
-  "devCommand": "npm run dev --workspace @marketplace/frontend"
+  "devCommand": "npm run dev --workspace @marketplace/frontend",
+  "github": {
+    "enabled": true,
+    "autoJobCancelation": true
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    },
+    {
+      "source": "/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*).json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, stale-while-revalidate=86400"
+        }
+      ]
+    }
+  ],
+  "regions": ["iad1"],
+  "cache": [
+    "node_modules/:cache",
+    ".next/:cache"
+  ],
+  "regions": ["hkg1"],
+  "functions": {
+    "apps/frontend/src/app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  }
 }
