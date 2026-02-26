@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 
 interface AppDetail {
   id: string
@@ -17,8 +17,16 @@ function AppDetail() {
   const { appId } = useParams<{ appId: string }>()
   const [app, setApp] = useState<AppDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<any>(null)
+  const [installing, setInstalling] = useState(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
+    const userData = localStorage.getItem('user')
+    if (userData) {
+      setUser(JSON.parse(userData))
+    }
+
     fetch(`http://localhost:3001/api/apps/${appId}`)
       .then(res => res.json())
       .then(data => {
@@ -27,6 +35,19 @@ function AppDetail() {
       })
       .catch(() => setLoading(false))
   }, [appId])
+
+  const handleInstall = () => {
+    if (!user) {
+      navigate('/auth/login')
+      return
+    }
+    
+    setInstalling(true)
+    setTimeout(() => {
+      setInstalling(false)
+      alert('App installed successfully!')
+    }, 1000)
+  }
 
   if (loading) {
     return <div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>
@@ -58,16 +79,20 @@ function AppDetail() {
               <span style={{ color: '#666' }}>{app.installs.toLocaleString()} installs</span>
             </div>
           </div>
-          <button style={{
-            padding: '15px 30px',
-            background: '#0070f3',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '16px',
-            cursor: 'pointer'
-          }}>
-            Install
+          <button 
+            onClick={handleInstall}
+            disabled={installing}
+            style={{
+              padding: '15px 30px',
+              background: installing ? '#ccc' : '#0070f3',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '16px',
+              cursor: installing ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {installing ? 'Installing...' : 'Install'}
           </button>
         </div>
 

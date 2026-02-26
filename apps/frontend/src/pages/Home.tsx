@@ -15,8 +15,15 @@ function Home() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('')
+  const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
+    // Check login status
+    const userData = localStorage.getItem('user')
+    if (userData) {
+      setUser(JSON.parse(userData))
+    }
+
     fetch('http://localhost:3001/api/apps')
       .then(res => res.json())
       .then(data => {
@@ -25,6 +32,12 @@ function Home() {
       })
       .catch(() => setLoading(false))
   }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    setUser(null)
+  }
 
   const filteredApps = apps.filter(app => {
     const matchSearch = app.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -37,9 +50,25 @@ function Home() {
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
-      <header style={{ marginBottom: '40px', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '48px', marginBottom: '10px' }}>Marketplace</h1>
-        <p style={{ color: '#666', fontSize: '18px' }}>Discover and install apps for your team</p>
+      <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 style={{ fontSize: '48px', marginBottom: '10px' }}>Marketplace</h1>
+          <p style={{ color: '#666', fontSize: '18px' }}>Discover and install apps for your team</p>
+        </div>
+        <div>
+          {user ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <span>{user.email}</span>
+              <button onClick={handleLogout} style={{ padding: '8px 16px', border: '1px solid #ddd', background: 'white', borderRadius: '6px', cursor: 'pointer' }}>
+                Logout
+              </button>
+            </div>
+          ) : (
+            <Link to="/auth/login" style={{ padding: '8px 16px', background: '#0070f3', color: 'white', borderRadius: '6px', textDecoration: 'none' }}>
+              Login
+            </Link>
+          )}
+        </div>
       </header>
 
       <div style={{ marginBottom: '20px' }}>
