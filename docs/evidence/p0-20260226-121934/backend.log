@@ -1,0 +1,37 @@
+
+> @marketplace/backend@0.1.0 dev
+> tsx watch src/index.ts
+
+node:events:486
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::3012
+    at Server.setupListenHandle [as _listen2] (node:net:2016:16)
+    at listenInCluster (node:net:2073:12)
+    at Server.listen (node:net:2178:7)
+    at app.listen (/Users/jeremypeng/agents-marketplace/node_modules/express/lib/application.js:635:24)
+    at express (/Users/jeremypeng/agents-marketplace/apps/backend/src/index.ts:164:5)
+    at Object.<anonymous> (/Users/jeremypeng/agents-marketplace/apps/backend/src/index.ts:166:2)
+    at Module._compile (node:internal/modules/cjs/loader:1811:14)
+    at Object.transformer (/Users/jeremypeng/agents-marketplace/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+    at Module.load (node:internal/modules/cjs/loader:1532:32)
+    at Module._load (node:internal/modules/cjs/loader:1334:12)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:2052:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '::',
+  port: 3012
+}
+
+Node.js v25.6.1
+npm error Lifecycle script `dev` failed with error:
+npm error code 15
+npm error path /Users/jeremypeng/agents-marketplace/apps/backend
+npm error workspace @marketplace/backend@0.1.0
+npm error location /Users/jeremypeng/agents-marketplace/apps/backend
+npm error command failed
+npm error command sh -c tsx watch src/index.ts
