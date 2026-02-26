@@ -88,14 +88,28 @@ function Home() {
       </header>
 
       <div style={{ marginBottom: '30px' }}>
-        <input
-          type="text"
-          placeholder="🔍 Search apps..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="form-input"
-          style={{ marginBottom: '20px', fontSize: '16px' }}
-        />
+        <div style={{ position: 'relative', marginBottom: '20px' }}>
+          <span style={{ 
+            position: 'absolute', 
+            left: '16px', 
+            top: '50%', 
+            transform: 'translateY(-50%)',
+            fontSize: '18px',
+            opacity: 0.5
+          }}>🔍</span>
+          <input
+            type="text"
+            placeholder="Search apps by name or description..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="form-input"
+            style={{ 
+              marginBottom: '0', 
+              fontSize: '16px',
+              paddingLeft: '48px'
+            }}
+          />
+        </div>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <button
             onClick={() => setCategory('')}
