@@ -39,6 +39,7 @@ function sendAppError(
 }
 
 const app = express();
+app.use(express.json());
 const port = Number(process.env.PORT ?? 3001);
 
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -77,6 +78,103 @@ app.get("/api/meta", (_req: Request, res: Response) => {
     supabaseConfigured: Boolean(supabase),
     timestamp: new Date().toISOString()
   });
+});
+
+app.post("/api/auth/register", async (req: Request, res: Response) => {
+  if (!supabase) {
+    return sendAppError(res, 500, "APP_DB_NOT_CONFIGURED", "Supabase is not configured.");
+  }
+
+  const email = String(req.body?.email ?? "").trim().toLowerCase();
+  const password = String(req.body?.password ?? "");
+
+  if (!email || !password || password.length < 8) {
+    return res.status(400).json({
+      error: {
+        code: "AUTH_INVALID_INPUT",
+        message: "email and password(min 8 chars) are required"
+      }
+    });
+  }
+
+  const { data, error } = await supabase.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true
+  });
+  if (error) {
+    return res.status(400).json({
+      error: {
+        code: "AUTH_REGISTER_FAILED",
+        message: error.message
+      }
+    });
+  }
+
+  return res.status(201).json({
+    user: { id: data.user?.id ?? null, email: data.user?.email ?? email },
+    session: null
+  });
+});
+
+app.post("/api/auth/login", async (req: Request, res: Response) => {
+  if (!supabase) {
+    return sendAppError(res, 500, "APP_DB_NOT_CONFIGURED", "Supabase is not configured.");
+  }
+
+  const email = String(req.body?.email ?? "").trim().toLowerCase();
+  const password = String(req.body?.password ?? "");
+
+  if (!email || !password) {
+    return res.status(400).json({
+      error: {
+        code: "AUTH_INVALID_INPUT",
+        message: "email and password are required"
+      }
+    });
+  }
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error || !data.session) {
+    return res.status(401).json({
+      error: {
+        code: "AUTH_INVALID_CREDENTIALS",
+        message: error?.message ?? "Invalid credentials"
+      }
+    });
+  }
+
+  return res.json({
+    user: { id: data.user.id, email: data.user.email },
+    session: {
+      accessToken: data.session.access_token,
+      refreshToken: data.session.refresh_token,
+      expiresAt: data.session.expires_at
+    }
+  });
+});
+
+app.get("/api/auth/me", async (req: Request, res: Response) => {
+  if (!supabase) {
+    return sendAppError(res, 500, "APP_DB_NOT_CONFIGURED", "Supabase is not configured.");
+  }
+
+  const auth = String(req.headers.authorization ?? "");
+  const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+  if (!token) {
+    return res.status(401).json({ error: { code: "AUTH_UNAUTHORIZED", message: "Missing bearer token" } });
+  }
+
+  const { data, error } = await supabase.auth.getUser(token);
+  if (error || !data.user) {
+    return res.status(401).json({ error: { code: "AUTH_UNAUTHORIZED", message: error?.message ?? "Invalid token" } });
+  }
+
+  return res.json({ user: { id: data.user.id, email: data.user.email } });
+});
+
+app.post("/api/auth/logout", (_req: Request, res: Response) => {
+  return res.json({ ok: true });
 });
 
 app.get("/api/apps/search", async (req: Request, res: Response) => {
