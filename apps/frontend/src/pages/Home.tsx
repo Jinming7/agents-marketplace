@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useToast } from '../components/Toast'
 
 interface App {
   id: string
@@ -13,9 +14,11 @@ interface App {
 function Home() {
   const [apps, setApps] = useState<App[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('')
   const [user, setUser] = useState<any>(null)
+  const { showToast } = useToast()
 
   useEffect(() => {
     const userData = localStorage.getItem('user')
@@ -29,13 +32,18 @@ function Home() {
         setApps(data.apps || [])
         setLoading(false)
       })
-      .catch(() => setLoading(false))
-  }, [])
+      .catch(() => {
+        setLoading(false)
+        setError(true)
+        showToast('Failed to load apps', 'error')
+      })
+  }, [showToast])
 
   const handleLogout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     setUser(null)
+    showToast('Logged out successfully', 'success')
   }
 
   const filteredApps = apps.filter(app => {

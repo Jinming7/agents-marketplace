@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useToast } from '../components/Toast'
 
 interface Profile {
   email: string
@@ -17,8 +18,8 @@ function Profile() {
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const navigate = useNavigate()
+  const { showToast } = useToast()
 
   useEffect(() => {
     const userData = localStorage.getItem('user')
@@ -47,19 +48,22 @@ function Profile() {
         })
         setLoading(false)
       })
-      .catch(() => setLoading(false))
-  }, [navigate])
+      .catch(() => {
+        setLoading(false)
+        showToast('Failed to load profile', 'error')
+      })
+  }, [navigate, showToast])
 
   const handleLogout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+    showToast('Logged out successfully', 'success')
     navigate('/auth/login')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
-    setMessage(null)
 
     const token = localStorage.getItem('token')
     if (!token) {
@@ -82,7 +86,7 @@ function Profile() {
       })
 
       if (res.ok) {
-        setMessage({ type: 'success', text: 'Profile updated successfully!' })
+        showToast('Profile updated successfully!', 'success')
         
         // Update localStorage
         const userData = localStorage.getItem('user')
@@ -91,10 +95,10 @@ function Profile() {
           localStorage.setItem('user', JSON.stringify({ ...user, name: profile.name }))
         }
       } else {
-        setMessage({ type: 'error', text: 'Failed to update profile' })
+        showToast('Failed to update profile', 'error')
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'An error occurred' })
+      showToast('An error occurred', 'error')
     }
     
     setSaving(false)

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useToast } from '../components/Toast'
 
 interface App {
   id: string
@@ -15,6 +16,7 @@ function MyApps() {
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
   const navigate = useNavigate()
+  const { showToast } = useToast()
 
   useEffect(() => {
     const userData = localStorage.getItem('user')
@@ -37,16 +39,20 @@ function MyApps() {
         setApps(data.apps || [])
         setLoading(false)
       })
-      .catch(() => setLoading(false))
-  }, [navigate])
+      .catch(() => {
+        setLoading(false)
+        showToast('Failed to load your apps', 'error')
+      })
+  }, [navigate, showToast])
 
   const handleLogout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+    showToast('Logged out successfully', 'success')
     navigate('/auth/login')
   }
 
-  const handleUninstall = async (appId: string) => {
+  const handleUninstall = async (appId: string, appName: string) => {
     const token = localStorage.getItem('token')
     if (!token) return
 
@@ -60,9 +66,13 @@ function MyApps() {
       
       if (res.ok) {
         setApps(apps.filter(app => app.id !== appId))
+        showToast(`${appName} uninstalled successfully`, 'success')
+      } else {
+        showToast('Failed to uninstall app', 'error')
       }
     } catch (error) {
       console.error('Failed to uninstall app:', error)
+      showToast('An error occurred', 'error')
     }
   }
 
@@ -134,7 +144,7 @@ function MyApps() {
                     View
                   </Link>
                   <button
-                    onClick={() => handleUninstall(app.id)}
+                    onClick={() => handleUninstall(app.id, app.name)}
                     style={{ flex: 1, padding: '10px', border: '1px solid #ff4d4f', background: 'white', borderRadius: '8px', color: '#ff4d4f', fontWeight: '500', cursor: 'pointer' }}
                   >
                     Uninstall
