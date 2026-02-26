@@ -95,7 +95,12 @@ app.get("/api/apps/search", async (req: Request, res: Response) => {
   const { data, error, count } = await query;
 
   if (error) {
-    sendAppError(res, 500, "APP_DB_QUERY_FAILED", "Failed to query apps.", error.message);
+    const details = String(error.message ?? "");
+    if (details.includes("Could not find the table 'public.apps'")) {
+      sendAppError(res, 503, "APP_DB_NOT_READY", "Database is reachable but schema is not initialized.", "Run supabase/init.sql first.");
+      return;
+    }
+    sendAppError(res, 500, "APP_DB_QUERY_FAILED", "Failed to query apps.", details);
     return;
   }
 
@@ -127,7 +132,12 @@ app.get("/api/apps/:appKey", async (req: Request, res: Response) => {
     .maybeSingle();
 
   if (error) {
-    sendAppError(res, 500, "APP_DB_QUERY_FAILED", "Failed to query app detail.", error.message);
+    const details = String(error.message ?? "");
+    if (details.includes("Could not find the table 'public.apps'")) {
+      sendAppError(res, 503, "APP_DB_NOT_READY", "Database is reachable but schema is not initialized.", "Run supabase/init.sql first.");
+      return;
+    }
+    sendAppError(res, 500, "APP_DB_QUERY_FAILED", "Failed to query app detail.", details);
     return;
   }
 
