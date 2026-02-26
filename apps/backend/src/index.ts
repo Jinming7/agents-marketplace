@@ -1,181 +1,48 @@
 import express from 'express'
 import cors from 'cors'
+import { errorHandler } from './middleware/errorHandler.js'
+import appsRouter from './routes/apps.js'
+import authRouter from './routes/auth.js'
+import userRouter from './routes/user.js'
+import categoriesRouter from './routes/categories.js'
 
 const app = express()
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 3003
 
+// Middleware
 app.use(cors())
 app.use(express.json())
+
+// Request logging
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`)
+  next()
+})
 
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
-// Mock data
-const apps = [
-  { id: '1', name: 'Slack', description: 'Team communication platform', category: 'Collaboration', installs: 10000, rating: 4.5 },
-  { id: '2', name: 'Jira', description: 'Project tracking tool', category: 'Productivity', installs: 8000, rating: 4.3 },
-  { id: '3', name: 'Confluence', description: 'Documentation platform', category: 'Knowledge', installs: 6000, rating: 4.2 },
-  { id: '4', name: 'GitHub', description: 'Code collaboration', category: 'Development', installs: 15000, rating: 4.8 },
-  { id: '5', name: 'Figma', description: 'Design tool', category: 'Design', installs: 5000, rating: 4.6 }
-]
+// API Routes
+app.use('/api/apps', appsRouter)
+app.use('/api/auth', authRouter)
+app.use('/api/user', userRouter)
+app.use('/api/categories', categoriesRouter)
 
-// Apps API
-app.get('/api/apps', (req, res) => {
-  const { q, category, sort } = req.query
-  let result = [...apps]
-  
-  if (q) {
-    result = result.filter(app => 
-      app.name.toLowerCase().includes(q.toString().toLowerCase()) ||
-      app.description.toLowerCase().includes(q.toString().toLowerCase())
-    )
-  }
-  
-  if (category) {
-    result = result.filter(app => app.category === category)
-  }
-  
-  if (sort === 'installs') {
-    result.sort((a, b) => b.installs - a.installs)
-  } else if (sort === 'rating') {
-    result.sort((a, b) => b.rating - a.rating)
-  }
-  
-  res.json({ apps: result, total: result.length })
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ 
+    error: 'NOT_FOUND', 
+    message: `Route ${req.method} ${req.path} not found` 
+  })
 })
 
-app.get('/api/apps/:id', (req, res) => {
-  const app = apps.find(a => a.id === req.params.id)
-  if (app) {
-    res.json({ ...app, version: '1.0.0', developer: 'Company', lastUpdated: '2024-01-15' })
-  } else {
-    res.status(404).json({ error: 'APP_NOT_FOUND', message: 'App not found' })
-  }
-})
-
-app.get('/api/categories', (req, res) => {
-  const categories = [...new Set(apps.map(a => a.category))]
-  res.json({ categories })
-})
-
-// Auth API (mock)
-const users: Record<string, { email: string; password: string }> = {}
-
-app.post('/api/auth/register', (req, res) => {
-  const { email, password } = req.body
-  if (users[email]) {
-    return res.status(400).json({ error: 'AUTH_EMAIL_EXISTS' })
-  }
-  users[email] = { email, password }
-  res.json({ token: 'mock-token-' + Date.now(), user: { email } })
-})
-
-app.post('/api/auth/login', (req, res) => {
-  const { email, password } = req.body
-  const user = users[email]
-  if (!user || user.password !== password) {
-    return res.status(401).json({ error: 'AUTH_INVALID_CREDENTIALS' })
-  }
-  res.json({ token: 'mock-token-' + Date.now(), user: { email } })
-})
-
-// User installations (mock database)
-const userInstallations: Record<string, string[]> = {
-  'user@example.com': ['1', '3'] // Example: user has Slack and Confluence
-}
-
-// Profile data (mock)
-const userProfiles: Record<string, { name: string; avatar?: string; bio?: string; notifications: boolean }> = {}
-
-// User installations API
-app.get('/api/user/installations', (req, res) => {
-  const authHeader = req.headers.authorization
-  if (!authHeader) {
-    return res.status(401).json({ error: 'AUTH_REQUIRED' })
-  }
-  
-  // Mock user email (in real app, get from token)
-  const email = 'user@example.com'
-  const installedAppIds = userInstallations[email] || []
-  
-  const installedApps = apps.filter(app => installedAppIds.includes(app.id))
-  res.json({ apps: installedApps, total: installedApps.length })
-})
-
-app.post('/api/user/installations', (req, res) => {
-  const authHeader = req.headers.authorization
-  if (!authHeader) {
-    return res.status(401).json({ error: 'AUTH_REQUIRED' })
-  }
-  
-  const { appId } = req.body
-  if (!appId) {
-    return res.status(400).json({ error: 'APP_ID_REQUIRED' })
-  }
-  
-  const app = apps.find(a => a.id === appId)
-  if (!app) {
-    return res.status(404).json({ error: 'APP_NOT_FOUND' })
-  }
-  
-  const email = 'user@example.com'
-  if (!userInstallations[email]) {
-    userInstallations[email] = []
-  }
-  
-  if (!userInstallations[email].includes(appId)) {
-    userInstallations[email].push(appId)
-  }
-  
-  res.json({ success: true, message: 'App installed successfully' })
-})
-
-app.delete('/api/user/installations/:appId', (req, res) => {
-  const authHeader = req.headers.authorization
-  if (!authHeader) {
-    return res.status(401).json({ error: 'AUTH_REQUIRED' })
-  }
-  
-  const email = 'user@example.com'
-  if (userInstallations[email]) {
-    userInstallations[email] = userInstallations[email].filter(id => id !== req.params.appId)
-  }
-  
-  res.json({ success: true, message: 'App uninstalled successfully' })
-})
-
-// User profile API
-app.get('/api/user/profile', (req, res) => {
-  const authHeader = req.headers.authorization
-  if (!authHeader) {
-    return res.status(401).json({ error: 'AUTH_REQUIRED' })
-  }
-  
-  const email = 'user@example.com'
-  const profile = userProfiles[email] || { name: 'User', notifications: true }
-  res.json({ ...profile, email })
-})
-
-app.put('/api/user/profile', (req, res) => {
-  const authHeader = req.headers.authorization
-  if (!authHeader) {
-    return res.status(401).json({ error: 'AUTH_REQUIRED' })
-  }
-  
-  const email = 'user@example.com'
-  const { name, bio, notifications } = req.body
-  
-  userProfiles[email] = {
-    name: name || 'User',
-    bio: bio || '',
-    notifications: notifications !== undefined ? notifications : true
-  }
-  
-  res.json({ success: true, message: 'Profile updated successfully' })
-})
+// Global error handler
+app.use(errorHandler)
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
+
+export default app
