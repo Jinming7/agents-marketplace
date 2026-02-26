@@ -1,25 +1,4 @@
 {
   "name": "@marketplace/backend",
-  "version": "0.1.0",
-  "private": true,
-  "type": "commonjs",
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "dev": "tsx watch src/index.ts",
-    "start": "node dist/index.js",
-    "db:init": "node scripts/init-db.mjs",
-    "db:verify": "node scripts/verify-db.mjs"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.57.4",
-    "dotenv": "^16.6.1",
-    "express": "^4.21.2",
-    "pg": "8.19.0"
-  },
-  "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/node": "^22.10.2",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
-  }
+  "version": "1.0.0-p0"
 }
