@@ -56,7 +56,7 @@ export const authValidation = {
 export const appValidation = {
   getById: [
     param('id')
-      .isUUID()
+      .matches(/^[0-9a-f-]+$/i)
       .withMessage('Invalid app ID format')
   ],
   list: [
@@ -80,12 +80,12 @@ export const appValidation = {
 export const userValidation = {
   install: [
     body('appId')
-      .isUUID()
+      .matches(/^[0-9a-f-]+$/i)
       .withMessage('Invalid app ID format')
   ],
   uninstall: [
     param('appId')
-      .isUUID()
+      .matches(/^[0-9a-f-]+$/i)
       .withMessage('Invalid app ID format')
   ],
   updateProfile: [

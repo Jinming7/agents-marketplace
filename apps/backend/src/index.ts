@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import { errorHandler } from './middleware/errorHandler.js'
+import { apiLimiter } from './middleware/rateLimit.js'
 import appsRouter from './routes/apps.js'
 import authRouter from './routes/auth.js'
 import userRouter from './routes/user.js'
@@ -19,16 +20,16 @@ app.use((req, res, next) => {
   next()
 })
 
-// Health check
+// Health check (no rate limit)
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
-// API Routes
-app.use('/api/apps', appsRouter)
-app.use('/api/auth', authRouter)
-app.use('/api/user', userRouter)
-app.use('/api/categories', categoriesRouter)
+// API Routes with rate limiting
+app.use('/api/apps', apiLimiter, appsRouter)
+app.use('/api/auth', authRouter) // Has its own stricter limiter
+app.use('/api/user', apiLimiter, userRouter)
+app.use('/api/categories', apiLimiter, categoriesRouter)
 
 // 404 handler
 app.use((req, res) => {

@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { asyncHandler } from '../middleware/errorHandler.js'
 import { validate, authValidation } from '../middleware/validation.js'
+import { authLimiter } from '../middleware/rateLimit.js'
 
 const router = Router()
 
@@ -8,7 +9,7 @@ const router = Router()
 const users: Map<string, { email: string; password: string }> = new Map()
 
 // POST /api/auth/register - Register a new user
-router.post('/register', validate(authValidation.register), asyncHandler(async (req, res) => {
+router.post('/register', authLimiter, validate(authValidation.register), asyncHandler(async (req, res) => {
   const { email, password } = req.body
   
   if (users.has(email.toLowerCase())) {
@@ -27,7 +28,7 @@ router.post('/register', validate(authValidation.register), asyncHandler(async (
 }))
 
 // POST /api/auth/login - Login user
-router.post('/login', validate(authValidation.login), asyncHandler(async (req, res) => {
+router.post('/login', authLimiter, validate(authValidation.login), asyncHandler(async (req, res) => {
   const { email, password } = req.body
   
   const user = users.get(email.toLowerCase())
