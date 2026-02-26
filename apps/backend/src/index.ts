@@ -71,6 +71,14 @@ function toAppRecord(row: AppRow): AppRecord {
   };
 }
 
+app.get("/api/meta", (_req: Request, res: Response) => {
+  res.json({
+    service: "agents-marketplace-backend",
+    supabaseConfigured: Boolean(supabase),
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.get("/api/apps/search", async (req: Request, res: Response) => {
   if (!supabase) {
     sendAppError(res, 500, "APP_DB_NOT_CONFIGURED", "Supabase is not configured.");
