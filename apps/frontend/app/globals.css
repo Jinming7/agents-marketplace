@@ -55,3 +55,36 @@ a {
   color: #4f627f;
   cursor: not-allowed;
 }
+
+.auth-form {
+  display: grid;
+  gap: 12px;
+}
+
+.auth-form input {
+  width: 100%;
+  margin-top: 6px;
+  border: 1px solid #c8d9ef;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.auth-submit {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: #1f5fbf;
+  color: #fff;
+  font-weight: 600;
+}
+
+.auth-submit:disabled {
+  background: #8eb1e4;
+  cursor: not-allowed;
+}
+
+.auth-error {
+  color: #b42318;
+  margin: 0;
+}

@@ -15,7 +15,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     const url = new URL(window.location.href);
-    setNextPath(url.searchParams.get("next") || "/");
+    const rawNext = url.searchParams.get("next") || "/";
+    const safeNext = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
+    setNextPath(safeNext);
   }, []);
 
   async function onSubmit(e: FormEvent) {
@@ -37,19 +39,19 @@ export default function LoginPage() {
     <main>
       <h1>Login</h1>
       <p className="meta">Sign in to access protected app detail pages.</p>
-      <form className="card" onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
+      <form className="card auth-form" onSubmit={onSubmit}>
         <label>
           Email
-          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required />
+          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" required />
         </label>
         <label>
           Password
-          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required />
+          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" autoComplete="current-password" required />
         </label>
-        <button type="submit" disabled={loading}>
+        <button className="auth-submit" type="submit" disabled={loading}>
           {loading ? "Signing in..." : "Login"}
         </button>
-        {error ? <p style={{ color: "#b42318" }}>{error}</p> : null}
+        {error ? <p className="auth-error">{error}</p> : null}
       </form>
       <p className="meta">
         No account? <Link href="/auth/register">Create one</Link>

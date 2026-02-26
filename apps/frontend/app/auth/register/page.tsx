@@ -29,19 +29,19 @@ export default function RegisterPage() {
     <main>
       <h1>Create account</h1>
       <p className="meta">MVP auth registration via Supabase Auth.</p>
-      <form className="card" onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
+      <form className="card auth-form" onSubmit={onSubmit}>
         <label>
           Email
-          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required />
+          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" required />
         </label>
         <label>
           Password (min 8)
-          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" minLength={8} required />
+          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" autoComplete="new-password" minLength={8} required />
         </label>
-        <button type="submit" disabled={loading}>
+        <button className="auth-submit" type="submit" disabled={loading}>
           {loading ? "Creating..." : "Register"}
         </button>
-        {error ? <p style={{ color: "#b42318" }}>{error}</p> : null}
+        {error ? <p className="auth-error">{error}</p> : null}
       </form>
       <p className="meta">
         Already registered? <Link href="/auth/login">Login</Link>
