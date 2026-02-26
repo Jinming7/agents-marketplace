@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useToast } from '../components/Toast'
 import { Loading, AppGridSkeleton } from '../components/Loading'
+import { useDebounce } from '../hooks/useDebounce'
 
 interface App {
   id: string
@@ -20,6 +21,8 @@ function Home() {
   const [category, setCategory] = useState('')
   const [user, setUser] = useState<any>(null)
   const { showToast } = useToast()
+  
+  const debouncedSearch = useDebounce(search, 300)
 
   useEffect(() => {
     const userData = localStorage.getItem('user')
@@ -48,8 +51,8 @@ function Home() {
   }
 
   const filteredApps = apps.filter(app => {
-    const matchSearch = app.name.toLowerCase().includes(search.toLowerCase()) ||
-      app.description.toLowerCase().includes(search.toLowerCase())
+    const matchSearch = app.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      app.description.toLowerCase().includes(debouncedSearch.toLowerCase())
     const matchCategory = !category || app.category === category
     return matchSearch && matchCategory
   })
