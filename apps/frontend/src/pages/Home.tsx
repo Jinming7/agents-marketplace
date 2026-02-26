@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useToast } from '../components/Toast'
+import { Loading, AppGridSkeleton } from '../components/Loading'
 
 interface App {
   id: string
@@ -128,9 +129,30 @@ function Home() {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '60px' }}>
-          <div className="loading-spinner" style={{ width: '40px', height: '40px', border: '4px solid #f3f3f3', borderTop: '4px solid #0070f3', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }}></div>
-          <p style={{ marginTop: '15px', color: '#666' }}>Loading apps...</p>
+        <AppGridSkeleton count={6} />
+      ) : error ? (
+        <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)' }}>
+          <div style={{ fontSize: '64px', marginBottom: '20px' }}>⚠️</div>
+          <h2 style={{ marginBottom: '10px', color: '#333' }}>Unable to load apps</h2>
+          <p style={{ color: '#666', marginBottom: '25px' }}>Please check your connection and try again.</p>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{ padding: '12px 28px', background: 'linear-gradient(135deg, #0070f3, #0051d4)', color: 'white', borderRadius: '8px', border: 'none', fontWeight: '500', cursor: 'pointer' }}
+          >
+            Retry
+          </button>
+        </div>
+      ) : filteredApps.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)' }}>
+          <div style={{ fontSize: '64px', marginBottom: '20px' }}>🔍</div>
+          <h2 style={{ marginBottom: '10px', color: '#333' }}>No apps found</h2>
+          <p style={{ color: '#666', marginBottom: '25px' }}>Try adjusting your search or filters.</p>
+          <button 
+            onClick={() => { setSearch(''); setCategory('') }}
+            style={{ padding: '12px 28px', background: 'linear-gradient(135deg, #0070f3, #0051d4)', color: 'white', borderRadius: '8px', border: 'none', fontWeight: '500', cursor: 'pointer' }}
+          >
+            Clear Filters
+          </button>
         </div>
       ) : (
         <>
