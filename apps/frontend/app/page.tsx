@@ -10,6 +10,9 @@ export default async function AppListPage() {
     <main>
       <h1>App Marketplace</h1>
       <p className="meta">Browse installable app placeholders.</p>
+      <p className="meta" style={{ marginTop: 8 }}>
+        <Link href="/auth/login">Login</Link> · <Link href="/auth/register">Register</Link>
+      </p>
       <div className="grid">
         {data.items.map((item) => (
           <article className="card" key={item.appKey}>
