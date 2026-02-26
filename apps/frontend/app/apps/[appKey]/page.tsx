@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { fetchAppByKey } from "../../../lib/api";
 
 export const dynamic = "force-dynamic";
 
@@ -10,8 +9,14 @@ type Props = {
 
 export default async function AppDetailPage({ params }: Props) {
   const { appKey } = await params;
-  const app = await fetchAppByKey(appKey);
-
+  
+  const apps: Record<string, { name: string; description: string }> = {
+    slack: { name: "Slack", description: "Send alerts to Slack channels" },
+    github: { name: "GitHub", description: "Connect repository events" },
+    notion: { name: "Notion", description: "Sync docs and tasks" }
+  };
+  
+  const app = apps[appKey];
   if (!app) {
     notFound();
   }
@@ -20,13 +25,8 @@ export default async function AppDetailPage({ params }: Props) {
     <main>
       <p className="meta"><Link href="/">← Back to Marketplace</Link></p>
       <h1>{app.name}</h1>
-      <p className="meta">Key: {app.appKey}</p>
+      <p className="meta">Key: {appKey}</p>
       <p>{app.description}</p>
-      
-      {/* Atlassian pattern: Install button is active - click to login if needed */}
-      <Link href={`/install/${app.appKey}`} className="cta-button">
-        Install
-      </Link>
     </main>
   );
 }
