@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { fetchAppByKey } from "../../../lib/api";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +18,7 @@ export default async function AppDetailPage({ params }: Props) {
 
   return (
     <main>
+      <p className="meta"><Link href="/">← Back to Marketplace</Link></p>
       <h1>{app.name}</h1>
       <p className="meta">Key: {app.appKey}</p>
       <p>{app.description}</p>
