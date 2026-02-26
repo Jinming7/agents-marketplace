@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ORG_ADMIN
+  PRODUCT_ADMIN
+  USER
+}
+
+enum HostingType {
+  CLOUD
+  ONPREM
+  HYBRID
+}
+
+enum AppRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id                   String       @id @default(cuid())
+  email                String       @unique
+  name                 String
+  role                 UserRole     @default(USER)
+  organizationId       String
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  reviews              Review[]
+  requestsCreated      AppRequest[] @relation("Requester")
+  requestsProcessed    AppRequest[] @relation("Processor")
+}
+
+model Partner {
+  id             String   @id @default(cuid())
+  name           String
+  key            String   @unique
+  websiteUrl     String?
+  verified       Boolean  @default(false)
+  description    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  apps           App[]
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  description String?
+  apps        App[]
+}
+
+model App {
+  id               String       @id @default(cuid())
+  key              String       @unique
+  name             String
+  summary          String
+  description      String?
+  logoUrl          String
+  installs         Int          @default(0)
+  installCount7d   Int          @default(0)
+  hosting          HostingType  @default(CLOUD)
+  pricingModel     String?
+  partnerId        String
+  securityInfo     Json
+  programs         Json
+  compatibility    Json?
+  minOnesVersion   String?
+  screenshots      Json?
+  isPublished      Boolean      @default(true)
+  ratingAverage    Float        @default(0)
+  ratingCount      Int          @default(0)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  partner          Partner      @relation(fields: [partnerId], references: [id], onDelete: Restrict)
+  categories       Category[]
+  reviews          Review[]
+  requests         AppRequest[]
+
+  @@index([isPublished])
+  @@index([installCount7d])
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  appId       String
+  userId      String
+  rating      Int
+  title       String?
+  content     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  app         App      @relation(fields: [appId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([appId])
+  @@index([userId])
+}
+
+model AppRequest {
+  id               String           @id @default(cuid())
+  appId            String
+  requesterId      String
+  organizationId   String
+  requestReason    String           @db.Text
+  status           AppRequestStatus @default(PENDING)
+  rejectionReason  String?          @db.Text
+  processorId      String?
+  createdAt        DateTime         @default(now())
+  processedAt      DateTime?
+  app              App              @relation(fields: [appId], references: [id], onDelete: Cascade)
+  requester        User             @relation("Requester", fields: [requesterId], references: [id], onDelete: Restrict)
+  processor        User?            @relation("Processor", fields: [processorId], references: [id], onDelete: SetNull)
+
+  @@index([appId])
+  @@index([requesterId])
+  @@index([status])
+  @@index([organizationId])
+}
