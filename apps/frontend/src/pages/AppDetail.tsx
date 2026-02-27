@@ -197,8 +197,85 @@ function AppDetail() {
             <p style={{ marginBottom: '10px', color: '#666' }}><strong style={{ color: '#333' }}>Version:</strong> {app.version}</p>
             <p style={{ marginBottom: '10px', color: '#666' }}><strong style={{ color: '#333' }}>Developer:</strong> {app.developer}</p>
             <p style={{ marginBottom: '10px', color: '#666' }}><strong style={{ color: '#333' }}>Last Updated:</strong> {app.lastUpdated}</p>
+            {app.pricing && <p style={{ marginBottom: '10px', color: '#666' }}><strong style={{ color: '#333' }}>Pricing:</strong> {app.pricing}</p>}
           </div>
+          
+          {app.compatibility && app.compatibility.length > 0 && (
+            <div>
+              <h3 style={{ marginBottom: '15px', color: '#333' }}>Compatibility</h3>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {app.compatibility.map((comp: string) => (
+                  <span key={comp} style={{ background: '#f5f5f5', padding: '4px 12px', borderRadius: '15px', fontSize: '13px', color: '#555' }}>
+                    {comp}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {app.highlights && app.highlights.length > 0 && (
+            <div>
+              <h3 style={{ marginBottom: '15px', color: '#333' }}>Highlights</h3>
+              <ul style={{ margin: 0, paddingLeft: '20px', color: '#666' }}>
+                {app.highlights.map((highlight: string, index: number) => (
+                  <li key={index} style={{ marginBottom: '5px' }}>{highlight}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
+
+        {/* Reviews Section */}
+        {reviews && reviews.total > 0 && (
+          <>
+            <hr style={{ border: 'none', borderTop: '1px solid #eee', margin: '35px 0' }} />
+            <div>
+              <h3 style={{ marginBottom: '20px', color: '#333' }}>Reviews</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '25px', padding: '20px', background: '#f9f9f9', borderRadius: '12px' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '48px', fontWeight: '700', color: '#333' }}>{reviews.averageRating.toFixed(1)}</div>
+                  <div style={{ color: '#ffa500', fontSize: '20px' }}>★</div>
+                  <div style={{ color: '#666', fontSize: '14px', marginTop: '5px' }}>{reviews.total} reviews</div>
+                </div>
+                <div style={{ flex: 1 }}>
+                  {[5, 4, 3, 2, 1].map(star => {
+                    const count = reviews.ratingDistribution[star] || 0
+                    const percentage = reviews.total > 0 ? (count / reviews.total) * 100 : 0
+                    return (
+                      <div key={star} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
+                        <span style={{ color: '#666', width: '20px' }}>{star}★</span>
+                        <div style={{ flex: 1, height: '8px', background: '#eee', borderRadius: '4px', overflow: 'hidden' }}>
+                          <div style={{ width: `${percentage}%`, height: '100%', background: '#ffa500', borderRadius: '4px' }}></div>
+                        </div>
+                        <span style={{ color: '#999', width: '30px', fontSize: '13px' }}>{count}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                {reviews.reviews.map((review: Review) => (
+                  <div key={review.id} style={{ padding: '20px', background: 'white', border: '1px solid #eee', borderRadius: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #0070f3, #00d4ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '600' }}>
+                          {review.userName.charAt(0)}
+                        </div>
+                        <span style={{ fontWeight: '600', color: '#333' }}>{review.userName}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <span style={{ color: '#ffa500' }}>★</span>
+                        <span style={{ color: '#333', fontWeight: '600' }}>{review.rating}</span>
+                      </div>
+                    </div>
+                    {review.comment && <p style={{ color: '#666', margin: 0, lineHeight: '1.5' }}>{review.comment}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
