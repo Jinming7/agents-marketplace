@@ -2,6 +2,15 @@ import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useToast } from '../components/Toast'
 
+interface Review {
+  id: string
+  userId: string
+  userName: string
+  rating: number
+  comment: string
+  createdAt: string
+}
+
 interface AppDetail {
   id: string
   name: string
@@ -18,9 +27,17 @@ interface AppDetail {
   compatibility?: string[]
 }
 
+interface ReviewsData {
+  reviews: Review[]
+  total: number
+  averageRating: number
+  ratingDistribution: Record<number, number>
+}
+
 function AppDetail() {
   const { appId } = useParams<{ appId: string }>()
   const [app, setApp] = useState<AppDetail | null>(null)
+  const [reviews, setReviews] = useState<ReviewsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [user, setUser] = useState<any>(null)
@@ -34,13 +51,16 @@ function AppDetail() {
       setUser(JSON.parse(userData))
     }
 
-    fetch(`http://localhost:3003/api/apps/${appId}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) {
+    Promise.all([
+      fetch(`http://localhost:3003/api/apps/${appId}`).then(res => res.json()),
+      fetch(`http://localhost:3003/api/apps/${appId}/reviews`).then(res => res.json()).catch(() => ({ reviews: [], total: 0, averageRating: 0, ratingDistribution: {} }))
+    ])
+      .then(([appData, reviewsData]) => {
+        if (appData.error) {
           setError(true)
         } else {
-          setApp(data)
+          setApp(appData)
+          setReviews(reviewsData)
         }
         setLoading(false)
       })

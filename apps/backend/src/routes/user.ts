@@ -83,11 +83,25 @@ router.post('/installations', requireAuth, validate(userValidation.install), asy
   }
   
   const userApps = userInstallations.get(email)!
-  if (!userApps.includes(appId)) {
-    userApps.push(appId)
+  if (userApps.includes(appId)) {
+    return res.status(400).json({ error: 'APP_ALREADY_INSTALLED', message: 'App is already installed' })
   }
   
+  userApps.push(appId)
+  
   res.status(201).json({ success: true, message: 'App installed successfully' })
+}))
+
+// GET /api/user/installations/:appId - Check if app is installed
+router.get('/installations/:appId', requireAuth, asyncHandler(async (req, res) => {
+  const email = getUserEmail(req.headers.authorization)
+  const installedAppIds = userInstallations.get(email) || []
+  const isInstalled = installedAppIds.includes(req.params.appId)
+  
+  res.json({ 
+    appId: req.params.appId,
+    isInstalled 
+  })
 }))
 
 // DELETE /api/user/installations/:appId - Uninstall an app
