@@ -8,6 +8,18 @@ const router = Router()
 // In-memory user store (use database in production)
 const users: Map<string, { email: string; password: string }> = new Map()
 
+// Token store for refresh tokens
+const refreshTokens: Map<string, { email: string; expiresAt: number }> = new Map()
+
+// Helper to generate tokens
+function generateToken(): string {
+  return `mock-token-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+}
+
+function generateRefreshToken(): string {
+  return `refresh-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+}
+
 // POST /api/auth/register - Register a new user
 router.post('/register', authLimiter, validate(authValidation.register), asyncHandler(async (req, res) => {
   const { email, password } = req.body
