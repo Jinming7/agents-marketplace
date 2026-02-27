@@ -12,6 +12,10 @@ interface AppDetail {
   version: string
   developer: string
   lastUpdated: string
+  pricing?: string
+  highlights?: string[]
+  screenshots?: string[]
+  compatibility?: string[]
 }
 
 function AppDetail() {

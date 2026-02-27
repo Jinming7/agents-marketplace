@@ -25,6 +25,21 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
+// API status endpoint
+app.get('/api/status', (req, res) => {
+  res.json({
+    status: 'operational',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      '/api/apps': 'GET (list), GET /:id (details), GET /:id/reviews (reviews)',
+      '/api/auth': 'POST /register, POST /login, POST /refresh, POST /logout, POST /password',
+      '/api/user': 'GET /profile, PUT /profile, GET /settings, PUT /settings, GET /installations, POST /installations, DELETE /installations/:appId',
+      '/api/categories': 'GET (list)'
+    }
+  })
+})
+
 // API Routes with rate limiting
 app.use('/api/apps', apiLimiter, appsRouter)
 app.use('/api/auth', authRouter) // Has its own stricter limiter

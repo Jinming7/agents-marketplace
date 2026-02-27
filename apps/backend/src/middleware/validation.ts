@@ -91,7 +91,15 @@ export const appValidation = {
     query('sort')
       .optional()
       .isIn(['installs', 'rating', 'name'])
-      .withMessage('Invalid sort option')
+      .withMessage('Invalid sort option'),
+    query('page')
+      .optional()
+      .isInt({ min: 1 })
+      .withMessage('Page must be a positive integer'),
+    query('pageSize')
+      .optional()
+      .isInt({ min: 1, max: 50 })
+      .withMessage('Page size must be between 1 and 50')
   ]
 }
 
