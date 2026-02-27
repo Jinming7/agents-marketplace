@@ -1,21 +1,27 @@
 {
-  "github": {
-    "enabled": true,
-    "autoJobCancelation": true
+  "buildCommand": "npm run build",
+  "outputDirectory": "apps/frontend/.next",
+  "framework": "nextjs",
+  "regions": ["sin1"],
+  "functions": {
+    "apps/backend/src/index.ts": {
+      "runtime": "nodejs20.x"
+    }
   },
-  "builds": [
+  "rewrites": [
     {
-      "src": "apps/frontend/dist/**",
-      "use": "@vercel/static"
+      "source": "/api/(.*)",
+      "destination": "/apps/backend/src/index.ts"
     }
   ],
-  "routes": [
+  "headers": [
     {
-      "src": "/(.*)",
-      "dest": "apps/frontend/dist/$1"
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, DELETE, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
+      ]
     }
-  ],
-  "env": {
-    "NEXT_PUBLIC_API_URL": "@next-public-api-url"
-  }
+  ]
 }

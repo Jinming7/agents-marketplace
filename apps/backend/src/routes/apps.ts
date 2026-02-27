@@ -1,183 +1,92 @@
 import { Router } from 'express'
-import { asyncHandler } from '../middleware/errorHandler.js'
-import { validate, appValidation } from '../middleware/validation.js'
-import pool from '../config/database.js'
 
-const router = Router()
+export const appsRouter = Router()
 
-// GET /api/apps - List all apps with optional filtering and pagination
-router.get('/', validate(appValidation.list), asyncHandler(async (req, res) => {
-  const { q, category, sort, page = '1', pageSize = '10' } = req.query
-  
-  // Build WHERE clause
-  let whereClause = 'WHERE 1=1'
-  const params: any[] = []
-  let paramIndex = 1
-  
+// Mock data
+const mockApps = [
+  {
+    id: '1',
+    name: '项目管理增强',
+    description: '为 ONES 项目添加甘特图、看板视图等高级功能',
+    category: '项目管理',
+    installs: 12500,
+    rating: 4.8,
+    version: '2.1.0',
+    developer: 'ONES Team',
+    icon: '📊',
+    lastUpdated: '2024-01-15T00:00:00Z',
+  },
+  {
+    id: '2',
+    name: '自动化工作流',
+    description: '创建自定义自动化规则，提升团队效率',
+    category: '自动化',
+    installs: 8900,
+    rating: 4.6,
+    version: '1.5.0',
+    developer: 'ONES Team',
+    icon: '⚡',
+    lastUpdated: '2024-01-10T00:00:00Z',
+  },
+  {
+    id: '3',
+    name: '代码仓库集成',
+    description: '连接 GitHub、GitLab，实现代码与项目联动',
+    category: '开发工具',
+    installs: 6700,
+    rating: 4.9,
+    version: '3.0.0',
+    developer: 'ONES Team',
+    icon: '🔗',
+    lastUpdated: '2024-01-12T00:00:00Z',
+  },
+]
+
+// GET /api/apps - List apps
+appsRouter.get('/', (req, res) => {
+  const { q, category, sort } = req.query
+
+  let apps = [...mockApps]
+
+  // Filter by search query
   if (q && typeof q === 'string') {
-    whereClause += ` AND (name ILIKE $${paramIndex} OR description ILIKE $${paramIndex})`
-    params.push(`%${q}%`)
-    paramIndex++
+    const query = q.toLowerCase()
+    apps = apps.filter(
+      (app) =>
+        app.name.toLowerCase().includes(query) ||
+        app.description.toLowerCase().includes(query)
+    )
   }
-  
-  if (category && typeof category === 'string') {
-    whereClause += ` AND category_name = $${paramIndex}`
-    params.push(category)
-    paramIndex++
+
+  // Filter by category
+  if (category && typeof category === 'string' && category !== '全部') {
+    apps = apps.filter((app) => app.category === category)
   }
-  
-  // Get total count (without ORDER BY)
-  const countQuery = `SELECT COUNT(*) FROM marketplace_apps ${whereClause}`
-  const countResult = await pool.query(countQuery, params)
-  const total = parseInt(countResult.rows[0].count)
-  
-  // Build main query with sorting
-  let query = `SELECT * FROM marketplace_apps ${whereClause}`
-  
-  if (sort === 'installs') {
-    query += ' ORDER BY installs DESC'
-  } else if (sort === 'rating') {
-    query += ' ORDER BY rating DESC'
+
+  // Sort
+  if (sort === 'rating') {
+    apps.sort((a, b) => b.rating - a.rating)
   } else if (sort === 'name') {
-    query += ' ORDER BY name ASC'
+    apps.sort((a, b) => a.name.localeCompare(b.name))
   } else {
-    query += ' ORDER BY created_at DESC'
+    // Default: sort by installs
+    apps.sort((a, b) => b.installs - a.installs)
   }
-  
-  // Pagination
-  const pageNum = Math.max(1, parseInt(page as string, 10))
-  const pageSizeNum = Math.min(50, Math.max(1, parseInt(pageSize as string, 10)))
-  const startIndex = (pageNum - 1) * pageSizeNum
-  
-  query += ` LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
-  params.push(pageSizeNum, startIndex)
-  
-  const result = await pool.query(query, params)
-  
-  // Convert PostgreSQL arrays to JSON
-  const apps = result.rows.map((row: any) => ({
-    ...row,
-    highlights: row.highlights || [],
-    screenshots: row.screenshots || [],
-    compatibility: row.compatibility || []
-  }))
-  
-  res.json({ 
-    apps, 
-    total,
-    page: pageNum,
-    pageSize: pageSizeNum,
-    totalPages: Math.ceil(total / pageSizeNum)
-  })
-}))
 
-// GET /api/apps/:id - Get app by ID
-router.get('/:id', validate(appValidation.getById), asyncHandler(async (req, res) => {
-  const result = await pool.query(
-    'SELECT * FROM marketplace_apps WHERE id::text = $1',
-    [req.params.id]
-  )
-  
-  if (result.rows.length === 0) {
-    return res.status(404).json({ error: 'APP_NOT_FOUND', message: 'App not found' })
-  }
-  
-  const app = result.rows[0]
-  res.json({ 
-    ...app,
-    highlights: app.highlights || [],
-    screenshots: app.screenshots || [],
-    compatibility: app.compatibility || []
-  })
-}))
+  res.json({ apps, total: apps.length })
+})
 
-// GET /api/apps/:id/reviews - Get app reviews
-router.get('/:id/reviews', asyncHandler(async (req, res) => {
-  const appId = req.params.id
-  
-  // Get app first to check existence (try both UUID and text formats)
-  const appResult = await pool.query(
-    'SELECT * FROM marketplace_apps WHERE id::text = $1',
-    [appId]
-  )
-  
-  if (appResult.rows.length === 0) {
-    return res.status(404).json({ error: 'APP_NOT_FOUND', message: 'App not found' })
-  }
-  
-  const app = appResult.rows[0]
-  
-  // Get reviews - use the actual UUID from the app
-  const reviewsResult = await pool.query(
-    'SELECT * FROM marketplace_reviews WHERE app_id = $1 ORDER BY created_at DESC',
-    [app.id]
-  )
-  
-  const reviews = reviewsResult.rows
-  
-  // Calculate rating distribution
-  const ratingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
-  reviews.forEach((r: any) => {
-    const rating = Math.round(r.rating) as keyof typeof ratingDistribution
-    if (rating >= 1 && rating <= 5) {
-      ratingDistribution[rating]++
-    }
-  })
-  
-  // Calculate average rating from reviews
-  const avgResult = await pool.query(
-    'SELECT AVG(rating) as avg_rating FROM marketplace_reviews WHERE app_id = $1',
-    [app.id]
-  )
-  const averageRating = avgResult.rows[0]?.avg_rating ? parseFloat(avgResult.rows[0].avg_rating).toFixed(1) : app.rating
-  
-  res.json({
-    reviews,
-    total: reviews.length,
-    averageRating: parseFloat(averageRating),
-    ratingDistribution
-  })
-}))
+// GET /api/apps/categories - List categories
+appsRouter.get('/categories', (req, res) => {
+  const categories = [...new Set(mockApps.map((app) => app.category))]
+  res.json({ categories })
+})
 
-// POST /api/apps/:id/reviews - Add a review
-router.post('/:id/reviews', asyncHandler(async (req, res) => {
-  const appId = req.params.id
-  const { rating, comment, userId, userName } = req.body
-  
-  // Check if app exists
-  const appResult = await pool.query(
-    'SELECT * FROM marketplace_apps WHERE id::text = $1',
-    [appId]
-  )
-  
-  if (appResult.rows.length === 0) {
-    return res.status(404).json({ error: 'APP_NOT_FOUND', message: 'App not found' })
+// GET /api/apps/:id - Get app details
+appsRouter.get('/:id', (req, res) => {
+  const app = mockApps.find((a) => a.id === req.params.id)
+  if (!app) {
+    return res.status(404).json({ error: 'App not found' })
   }
-  
-  const app = appResult.rows[0]
-  
-  if (!rating || rating < 1 || rating > 5) {
-    return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'Rating must be between 1 and 5' })
-  }
-  
-  if (!userId || !userName) {
-    return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'userId and userName are required' })
-  }
-  
-  const result = await pool.query(
-    'INSERT INTO marketplace_reviews (app_id, user_id, user_name, rating, comment) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-    [app.id, userId, userName, rating, comment || '']
-  )
-  
-  const newReview = result.rows[0]
-  
-  // Update app's average rating
-  await pool.query(
-    'UPDATE marketplace_apps SET rating = (SELECT AVG(rating) FROM marketplace_reviews WHERE app_id = $1) WHERE id = $1',
-    [app.id]
-  )
-  
-  res.status(201).json({ success: true, review: newReview })
-}))
-
-export default router
+  res.json(app)
+})
