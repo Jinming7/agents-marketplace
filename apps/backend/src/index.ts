@@ -6,6 +6,8 @@ import appsRouter from './routes/apps.js'
 import authRouter from './routes/auth.js'
 import userRouter from './routes/user.js'
 import categoriesRouter from './routes/categories.js'
+import { testConnection } from './config/database.js'
+import initializeDatabase from './db/init.js'
 
 const app = express()
 const PORT = process.env.PORT || 3003
@@ -57,8 +59,21 @@ app.use((req, res) => {
 // Global error handler
 app.use(errorHandler)
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`)
+  
+  // Test Supabase database connection
+  const dbConnected = await testConnection()
+  if (dbConnected) {
+    // Initialize database tables and seed data
+    try {
+      await initializeDatabase()
+    } catch (err) {
+      console.warn('[WARNING] Database initialization failed:', err)
+    }
+  } else {
+    console.warn('[WARNING] Running with mock data - database connection failed')
+  }
 })
 
 export default app

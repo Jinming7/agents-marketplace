@@ -1,170 +1,224 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { asyncHandler } from '../middleware/errorHandler.js'
 import { validate, userValidation } from '../middleware/validation.js'
+import pool from '../config/database.js'
+import jwt from 'jsonwebtoken'
 
 const router = Router()
 
-// Mock user installations database
-const userInstallations: Map<string, string[]> = new Map([
-  ['user@example.com', ['1', '3']]
-])
+// JWT secret - should match auth.ts
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production'
 
-// Mock user profiles database
-const userProfiles: Map<string, { name: string; avatar?: string; bio?: string; notifications: boolean }> = new Map()
-
-// Mock user settings database
-const userSettings: Map<string, { 
-  emailNotifications: boolean; 
-  pushNotifications: boolean; 
-  weeklyDigest: boolean; 
-  language: string;
-  timezone: string;
-}> = new Map()
-
-// Helper to get user email from auth header (mock)
-function getUserEmail(authHeader?: string): string {
-  // In production, decode JWT token
-  // For mock: extract email from Bearer token if it's a mock token
-  if (authHeader && authHeader.startsWith('Bearer mock-token-')) {
-    // Extract email from token or use default
-    return 'user@example.com'
+// Helper to get user ID from auth header
+function getUserId(authHeader?: string): string | null {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null
   }
-  return 'user@example.com'
+  
+  try {
+    const token = authHeader.substring(7)
+    const decoded = jwt.verify(token, JWT_SECRET) as any
+    return decoded.userId
+  } catch (error) {
+    return null
+  }
 }
 
 // Middleware to require auth
 function requireAuth(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization
-  if (!authHeader) {
+  const userId = getUserId(authHeader)
+  
+  if (!userId) {
     return res.status(401).json({ error: 'AUTH_REQUIRED', message: 'Authorization required' })
   }
+  
+  // Attach userId to request for later use
+  (req as any).userId = userId
   next()
 }
 
 // GET /api/user/installations - Get user installed apps
 router.get('/installations', requireAuth, asyncHandler(async (req, res) => {
-  const email = getUserEmail(req.headers.authorization)
-  const installedAppIds = userInstallations.get(email) || []
+  const userId = (req as any).userId
   
-  // Mock app data (in production, fetch from apps table)
-  const apps = [
-    { id: '1', name: 'Slack', description: 'Team communication platform', category: 'Collaboration', installs: 10000, rating: 4.5 },
-    { id: '2', name: 'Jira', description: 'Project tracking tool', category: 'Productivity', installs: 8000, rating: 4.3 },
-    { id: '3', name: 'Confluence', description: 'Documentation platform', category: 'Knowledge', installs: 6000, rating: 4.2 },
-    { id: '4', name: 'GitHub', description: 'Code collaboration', category: 'Development', installs: 15000, rating: 4.8 },
-    { id: '5', name: 'Figma', description: 'Design tool', category: 'Design', installs: 5000, rating: 4.6 }
-  ]
-  
-  const installedApps = apps.filter(app => installedAppIds.includes(app.id))
-  res.json({ apps: installedApps, total: installedApps.length })
+  try {
+    const result = await pool.query(
+      `SELECT a.* FROM apps a
+       INNER JOIN user_installations ui ON a.id = ui.app_id
+       WHERE ui.user_id = $1
+       ORDER BY ui.installed_at DESC`,
+      [userId]
+    )
+    
+    res.json({ apps: result.rows, total: result.rows.length })
+  } catch (error) {
+    console.error('[user] Error fetching installations:', error)
+    res.json({ apps: [], total: 0 })
+  }
 }))
 
 // POST /api/user/installations - Install an app
 router.post('/installations', requireAuth, validate(userValidation.install), asyncHandler(async (req, res) => {
+  const userId = (req as any).userId
   const { appId } = req.body
-  const email = getUserEmail(req.headers.authorization)
   
-  // Mock app data
-  const apps = [
-    { id: '1', name: 'Slack', description: 'Team communication platform', category: 'Collaboration', installs: 10000, rating: 4.5 },
-    { id: '2', name: 'Jira', description: 'Project tracking tool', category: 'Productivity', installs: 8000, rating: 4.3 },
-    { id: '3', name: 'Confluence', description: 'Documentation platform', category: 'Knowledge', installs: 6000, rating: 4.2 },
-    { id: '4', name: 'GitHub', description: 'Code collaboration', category: 'Development', installs: 15000, rating: 4.8 },
-    { id: '5', name: 'Figma', description: 'Design tool', category: 'Design', installs: 5000, rating: 4.6 }
-  ]
-  
-  const app = apps.find(a => a.id === appId)
-  if (!app) {
+  // Check if app exists
+  const appResult = await pool.query('SELECT id FROM apps WHERE id = $1', [appId])
+  if (appResult.rows.length === 0) {
     return res.status(404).json({ error: 'APP_NOT_FOUND', message: 'App not found' })
   }
   
-  if (!userInstallations.has(email)) {
-    userInstallations.set(email, [])
-  }
+  // Check if already installed
+  const existingInstall = await pool.query(
+    'SELECT id FROM user_installations WHERE user_id = $1 AND app_id = $2',
+    [userId, appId]
+  )
   
-  const userApps = userInstallations.get(email)!
-  if (userApps.includes(appId)) {
+  if (existingInstall.rows.length > 0) {
     return res.status(400).json({ error: 'APP_ALREADY_INSTALLED', message: 'App is already installed' })
   }
   
-  userApps.push(appId)
+  // Create installation
+  await pool.query(
+    'INSERT INTO user_installations (user_id, app_id) VALUES ($1, $2)',
+    [userId, appId]
+  )
+  
+  // Update app install count
+  await pool.query(
+    'UPDATE apps SET installs = installs + 1 WHERE id = $1',
+    [appId]
+  )
   
   res.status(201).json({ success: true, message: 'App installed successfully' })
 }))
 
 // GET /api/user/installations/:appId - Check if app is installed
 router.get('/installations/:appId', requireAuth, asyncHandler(async (req, res) => {
-  const email = getUserEmail(req.headers.authorization)
-  const installedAppIds = userInstallations.get(email) || []
-  const isInstalled = installedAppIds.includes(req.params.appId)
+  const userId = (req as any).userId
+  const appId = req.params.appId
+  
+  const result = await pool.query(
+    'SELECT id FROM user_installations WHERE user_id = $1 AND app_id = $2',
+    [userId, appId]
+  )
   
   res.json({ 
-    appId: req.params.appId,
-    isInstalled 
+    appId,
+    isInstalled: result.rows.length > 0
   })
 }))
 
 // DELETE /api/user/installations/:appId - Uninstall an app
 router.delete('/installations/:appId', requireAuth, validate(userValidation.uninstall), asyncHandler(async (req, res) => {
-  const email = getUserEmail(req.headers.authorization)
+  const userId = (req as any).userId
+  const appId = req.params.appId
   
-  if (userInstallations.has(email)) {
-    const userApps = userInstallations.get(email)!
-    const index = userApps.indexOf(req.params.appId)
-    if (index > -1) {
-      userApps.splice(index, 1)
-    }
-  }
+  await pool.query(
+    'DELETE FROM user_installations WHERE user_id = $1 AND app_id = $2',
+    [userId, appId]
+  )
+  
+  // Update app install count
+  await pool.query(
+    'UPDATE apps SET installs = GREATEST(installs - 1, 0) WHERE id = $1',
+    [appId]
+  )
   
   res.json({ success: true, message: 'App uninstalled successfully' })
 }))
 
 // GET /api/user/profile - Get user profile
 router.get('/profile', requireAuth, asyncHandler(async (req, res) => {
-  const email = getUserEmail(req.headers.authorization)
-  const profile = userProfiles.get(email) || { name: 'User', notifications: true }
-  res.json({ ...profile, email })
+  const userId = (req as any).userId
+  
+  const result = await pool.query(
+    'SELECT up.*, u.email FROM user_profiles up INNER JOIN users u ON up.user_id = u.id WHERE up.user_id = $1',
+    [userId]
+  )
+  
+  if (result.rows.length === 0) {
+    return res.status(404).json({ error: 'PROFILE_NOT_FOUND', message: 'Profile not found' })
+  }
+  
+  const profile = result.rows[0]
+  res.json({
+    id: profile.id,
+    email: profile.email,
+    name: profile.name,
+    avatar: profile.avatar,
+    bio: profile.bio,
+    notifications: profile.notifications
+  })
 }))
 
 // PUT /api/user/profile - Update user profile
 router.put('/profile', requireAuth, validate(userValidation.updateProfile), asyncHandler(async (req, res) => {
-  const email = getUserEmail(req.headers.authorization)
+  const userId = (req as any).userId
   const { name, bio, notifications } = req.body
   
-  userProfiles.set(email, {
-    name: name || 'User',
-    bio: bio || '',
-    notifications: notifications !== undefined ? notifications : true
-  })
+  await pool.query(
+    `INSERT INTO user_profiles (user_id, name, bio, notifications)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (user_id) DO UPDATE SET
+       name = COALESCE($2, user_profiles.name),
+       bio = COALESCE($3, user_profiles.bio),
+       notifications = COALESCE($4, user_profiles.notifications),
+       updated_at = NOW()`,
+    [userId, name, bio, notifications]
+  )
   
   res.json({ success: true, message: 'Profile updated successfully' })
 }))
 
 // GET /api/user/settings - Get user settings
 router.get('/settings', requireAuth, asyncHandler(async (req, res) => {
-  const email = getUserEmail(req.headers.authorization)
-  const settings = userSettings.get(email) || { 
-    emailNotifications: true, 
-    pushNotifications: true, 
-    weeklyDigest: false, 
-    language: 'en',
-    timezone: 'UTC'
+  const userId = (req as any).userId
+  
+  const result = await pool.query(
+    'SELECT * FROM user_settings WHERE user_id = $1',
+    [userId]
+  )
+  
+  if (result.rows.length === 0) {
+    // Return defaults if no settings exist
+    return res.json({
+      emailNotifications: true,
+      pushNotifications: true,
+      weeklyDigest: false,
+      language: 'en',
+      timezone: 'UTC'
+    })
   }
-  res.json(settings)
+  
+  const settings = result.rows[0]
+  res.json({
+    emailNotifications: settings.email_notifications,
+    pushNotifications: settings.push_notifications,
+    weeklyDigest: settings.weekly_digest,
+    language: settings.language,
+    timezone: settings.timezone
+  })
 }))
 
 // PUT /api/user/settings - Update user settings
 router.put('/settings', requireAuth, asyncHandler(async (req, res) => {
-  const email = getUserEmail(req.headers.authorization)
+  const userId = (req as any).userId
   const { emailNotifications, pushNotifications, weeklyDigest, language, timezone } = req.body
   
-  userSettings.set(email, {
-    emailNotifications: emailNotifications !== undefined ? emailNotifications : true,
-    pushNotifications: pushNotifications !== undefined ? pushNotifications : true,
-    weeklyDigest: weeklyDigest !== undefined ? weeklyDigest : false,
-    language: language || 'en',
-    timezone: timezone || 'UTC'
-  })
+  await pool.query(
+    `INSERT INTO user_settings (user_id, email_notifications, push_notifications, weekly_digest, language, timezone)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     ON CONFLICT (user_id) DO UPDATE SET
+       email_notifications = COALESCE($2, user_settings.email_notifications),
+       push_notifications = COALESCE($3, user_settings.push_notifications),
+       weekly_digest = COALESCE($4, user_settings.weekly_digest),
+       language = COALESCE($5, user_settings.language),
+       timezone = COALESCE($6, user_settings.timezone),
+       updated_at = NOW()`,
+    [userId, emailNotifications, pushNotifications, weeklyDigest, language, timezone]
+  )
   
   res.json({ success: true, message: 'Settings updated successfully' })
 }))

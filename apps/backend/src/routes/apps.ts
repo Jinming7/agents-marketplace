@@ -1,181 +1,137 @@
 import { Router } from 'express'
 import { asyncHandler } from '../middleware/errorHandler.js'
 import { validate, appValidation } from '../middleware/validation.js'
+import pool from '../config/database.js'
 
 const router = Router()
-
-// Enhanced mock data with more fields
-const apps = [
-  { 
-    id: '1', 
-    name: 'Slack', 
-    description: 'Team communication platform', 
-    category: 'Collaboration', 
-    installs: 10000, 
-    rating: 4.5,
-    version: '4.35.0',
-    developer: 'Salesforce',
-    lastUpdated: '2024-01-15',
-    pricing: 'Free tier, $12.75/user/month',
-    highlights: ['Real-time messaging', 'Channel organization', 'App integrations'],
-    screenshots: ['https://example.com/slack1.png', 'https://example.com/slack2.png'],
-    compatibility: ['Web', 'Desktop', 'Mobile']
-  },
-  { 
-    id: '2', 
-    name: 'Jira', 
-    description: 'Project tracking tool', 
-    category: 'Productivity', 
-    installs: 8000, 
-    rating: 4.3,
-    version: '9.12.0',
-    developer: 'Atlassian',
-    lastUpdated: '2024-01-10',
-    pricing: 'Free for up to 10 users',
-    highlights: ['Agile boards', 'Issue tracking', 'Reporting'],
-    screenshots: ['https://example.com/jira1.png'],
-    compatibility: ['Web', 'Desktop']
-  },
-  { 
-    id: '3', 
-    name: 'Confluence', 
-    description: 'Documentation platform', 
-    category: 'Knowledge', 
-    installs: 6000, 
-    rating: 4.2,
-    version: '8.5.0',
-    developer: 'Atlassian',
-    lastUpdated: '2024-01-08',
-    pricing: 'Free for up to 10 users',
-    highlights: ['Team workspaces', 'Templates', 'Real-time collaboration'],
-    screenshots: ['https://example.com/confluence1.png'],
-    compatibility: ['Web', 'Desktop', 'Mobile']
-  },
-  { 
-    id: '4', 
-    name: 'GitHub', 
-    description: 'Code collaboration', 
-    category: 'Development', 
-    installs: 15000, 
-    rating: 4.8,
-    version: '2024.01',
-    developer: 'Microsoft',
-    lastUpdated: '2024-01-20',
-    pricing: 'Free for individuals',
-    highlights: ['Git repositories', 'CI/CD', 'Code review'],
-    screenshots: ['https://example.com/github1.png', 'https://example.com/github2.png'],
-    compatibility: ['Web', 'Desktop', 'CLI']
-  },
-  { 
-    id: '5', 
-    name: 'Figma', 
-    description: 'Design tool', 
-    category: 'Design', 
-    installs: 5000, 
-    rating: 4.6,
-    version: '2024.01',
-    developer: 'Figma Inc.',
-    lastUpdated: '2024-01-18',
-    pricing: 'Free tier available',
-    highlights: ['Vector editing', 'Prototyping', 'Design systems'],
-    screenshots: ['https://example.com/figma1.png'],
-    compatibility: ['Web', 'Desktop']
-  }
-]
-
-// Mock reviews data
-const reviews: Map<string, Array<{id: string; userId: string; userName: string; rating: number; comment: string; createdAt: string}>> = new Map([
-  ['1', [
-    { id: 'r1', userId: 'u1', userName: 'John D.', rating: 5, comment: 'Great team communication tool!', createdAt: '2024-01-10T10:00:00Z' },
-    { id: 'r2', userId: 'u2', userName: 'Jane S.', rating: 4, comment: 'Very useful, but can be noisy', createdAt: '2024-01-08T14:30:00Z' }
-  ]],
-  ['4', [
-    { id: 'r3', userId: 'u3', userName: 'Dev Pro', rating: 5, comment: 'Essential for any development team', createdAt: '2024-01-12T09:15:00Z' }
-  ]]
-])
 
 // GET /api/apps - List all apps with optional filtering and pagination
 router.get('/', validate(appValidation.list), asyncHandler(async (req, res) => {
   const { q, category, sort, page = '1', pageSize = '10' } = req.query
-  let result = [...apps]
+  
+  let query = 'SELECT * FROM apps WHERE 1=1'
+  const params: any[] = []
+  let paramIndex = 1
   
   if (q && typeof q === 'string') {
-    const searchTerm = q.toLowerCase()
-    result = result.filter(app => 
-      app.name.toLowerCase().includes(searchTerm) ||
-      app.description.toLowerCase().includes(searchTerm)
-    )
+    query += ` AND (name ILIKE $${paramIndex} OR description ILIKE $${paramIndex})`
+    params.push(`%${q}%`)
+    paramIndex++
   }
   
   if (category && typeof category === 'string') {
-    result = result.filter(app => app.category === category)
+    query += ` AND category_name = $${paramIndex}`
+    params.push(category)
+    paramIndex++
   }
   
+  // Add sorting
   if (sort === 'installs') {
-    result.sort((a, b) => b.installs - a.installs)
+    query += ' ORDER BY installs DESC'
   } else if (sort === 'rating') {
-    result.sort((a, b) => b.rating - a.rating)
+    query += ' ORDER BY rating DESC'
   } else if (sort === 'name') {
-    result.sort((a, b) => a.name.localeCompare(b.name))
+    query += ' ORDER BY name ASC'
+  } else {
+    query += ' ORDER BY created_at DESC'
   }
+  
+  // Get total count
+  const countQuery = query.replace('SELECT *', 'SELECT COUNT(*)')
+  const countResult = await pool.query(countQuery, params)
+  const total = parseInt(countResult.rows[0].count)
   
   // Pagination
   const pageNum = Math.max(1, parseInt(page as string, 10))
   const pageSizeNum = Math.min(50, Math.max(1, parseInt(pageSize as string, 10)))
   const startIndex = (pageNum - 1) * pageSizeNum
-  const endIndex = startIndex + pageSizeNum
   
-  const paginatedResult = result.slice(startIndex, endIndex)
+  query += ` LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+  params.push(pageSizeNum, startIndex)
+  
+  const result = await pool.query(query, params)
+  
+  // Convert PostgreSQL arrays to JSON
+  const apps = result.rows.map(row => ({
+    ...row,
+    highlights: row.highlights || [],
+    screenshots: row.screenshots || [],
+    compatibility: row.compatibility || []
+  }))
   
   res.json({ 
-    apps: paginatedResult, 
-    total: result.length,
+    apps, 
+    total,
     page: pageNum,
     pageSize: pageSizeNum,
-    totalPages: Math.ceil(result.length / pageSizeNum)
+    totalPages: Math.ceil(total / pageSizeNum)
   })
 }))
 
 // GET /api/apps/:id - Get app by ID
 router.get('/:id', validate(appValidation.getById), asyncHandler(async (req, res) => {
-  const app = apps.find(a => a.id === req.params.id)
-  if (!app) {
+  const result = await pool.query(
+    'SELECT * FROM apps WHERE id = $1 OR id::text = $1',
+    [req.params.id]
+  )
+  
+  if (result.rows.length === 0) {
     return res.status(404).json({ error: 'APP_NOT_FOUND', message: 'App not found' })
   }
   
+  const app = result.rows[0]
   res.json({ 
-    ...app, 
-    version: app.version, 
-    developer: app.developer, 
-    lastUpdated: app.lastUpdated,
-    pricing: app.pricing,
-    highlights: app.highlights,
-    screenshots: app.screenshots,
-    compatibility: app.compatibility
+    ...app,
+    highlights: app.highlights || [],
+    screenshots: app.screenshots || [],
+    compatibility: app.compatibility || []
   })
 }))
 
 // GET /api/apps/:id/reviews - Get app reviews
 router.get('/:id/reviews', asyncHandler(async (req, res) => {
   const appId = req.params.id
-  const app = apps.find(a => a.id === appId)
   
-  if (!app) {
+  // Get app first to check existence
+  const appResult = await pool.query(
+    'SELECT * FROM apps WHERE id = $1 OR id::text = $1',
+    [appId]
+  )
+  
+  if (appResult.rows.length === 0) {
     return res.status(404).json({ error: 'APP_NOT_FOUND', message: 'App not found' })
   }
   
-  const appReviews = reviews.get(appId) || []
+  const app = appResult.rows[0]
+  
+  // Get reviews
+  const reviewsResult = await pool.query(
+    'SELECT * FROM reviews WHERE app_id = $1 OR app_id::text = $1 ORDER BY created_at DESC',
+    [appId]
+  )
+  
+  const reviews = reviewsResult.rows
   
   // Calculate rating distribution
   const ratingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
-  appReviews.forEach(r => {
-    ratingDistribution[r.rating as keyof typeof ratingDistribution]++
+  reviews.forEach(r => {
+    const rating = Math.round(r.rating) as keyof typeof ratingDistribution
+    if (rating >= 1 && rating <= 5) {
+      ratingDistribution[rating]++
+    }
   })
   
+  // Calculate average rating from reviews
+  const avgResult = await pool.query(
+    'SELECT AVG(rating) as avg_rating FROM reviews WHERE app_id = $1 OR app_id::text = $1',
+    [appId]
+  )
+  const averageRating = avgResult.rows[0]?.avg_rating ? parseFloat(avgResult.rows[0].avg_rating).toFixed(1) : app.rating
+  
   res.json({
-    reviews: appReviews,
-    total: appReviews.length,
-    averageRating: app.rating,
+    reviews,
+    total: reviews.length,
+    averageRating: parseFloat(averageRating),
     ratingDistribution
   })
 }))
@@ -185,8 +141,13 @@ router.post('/:id/reviews', asyncHandler(async (req, res) => {
   const appId = req.params.id
   const { rating, comment, userId, userName } = req.body
   
-  const app = apps.find(a => a.id === appId)
-  if (!app) {
+  // Check if app exists
+  const appResult = await pool.query(
+    'SELECT * FROM apps WHERE id = $1 OR id::text = $1',
+    [appId]
+  )
+  
+  if (appResult.rows.length === 0) {
     return res.status(404).json({ error: 'APP_NOT_FOUND', message: 'App not found' })
   }
   
@@ -198,19 +159,18 @@ router.post('/:id/reviews', asyncHandler(async (req, res) => {
     return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'userId and userName are required' })
   }
   
-  const newReview = {
-    id: `r${Date.now()}`,
-    userId,
-    userName,
-    rating,
-    comment: comment || '',
-    createdAt: new Date().toISOString()
-  }
+  const result = await pool.query(
+    'INSERT INTO reviews (app_id, user_id, user_name, rating, comment) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+    [appId, userId, userName, rating, comment || '']
+  )
   
-  if (!reviews.has(appId)) {
-    reviews.set(appId, [])
-  }
-  reviews.get(appId)!.push(newReview)
+  const newReview = result.rows[0]
+  
+  // Update app's average rating
+  await pool.query(
+    'UPDATE apps SET rating = (SELECT AVG(rating) FROM reviews WHERE app_id = $1 OR app_id::text = $1) WHERE id = $1 OR id::text = $1',
+    [appId]
+  )
   
   res.status(201).json({ success: true, review: newReview })
 }))
