@@ -49,6 +49,25 @@ export const authValidation = {
     body('password')
       .notEmpty()
       .withMessage('Password is required')
+  ],
+  refresh: [
+    body('refreshToken')
+      .notEmpty()
+      .withMessage('Refresh token is required')
+  ],
+  changePassword: [
+    body('email')
+      .isEmail()
+      .withMessage('Invalid email format')
+      .normalizeEmail(),
+    body('currentPassword')
+      .notEmpty()
+      .withMessage('Current password is required'),
+    body('newPassword')
+      .isLength({ min: 6 })
+      .withMessage('New password must be at least 6 characters')
+      .matches(/\d/)
+      .withMessage('New password must contain at least one number')
   ]
 }
 

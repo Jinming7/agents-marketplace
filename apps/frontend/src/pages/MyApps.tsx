@@ -29,7 +29,7 @@ function MyApps() {
     
     setUser(JSON.parse(userData))
 
-    fetch('http://localhost:3001/api/user/installations', {
+    fetch('http://localhost:3003/api/user/installations', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -57,7 +57,7 @@ function MyApps() {
     if (!token) return
 
     try {
-      const res = await fetch(`http://localhost:3001/api/user/installations/${appId}`, {
+      const res = await fetch(`http://localhost:3003/api/user/installations/${appId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

@@ -1,4 +1,4 @@
-import { Router } from 'express'
+import { Router, Request, Response, NextFunction } from 'express'
 import { asyncHandler } from '../middleware/errorHandler.js'
 import { validate, userValidation } from '../middleware/validation.js'
 
@@ -12,14 +12,28 @@ const userInstallations: Map<string, string[]> = new Map([
 // Mock user profiles database
 const userProfiles: Map<string, { name: string; avatar?: string; bio?: string; notifications: boolean }> = new Map()
 
+// Mock user settings database
+const userSettings: Map<string, { 
+  emailNotifications: boolean; 
+  pushNotifications: boolean; 
+  weeklyDigest: boolean; 
+  language: string;
+  timezone: string;
+}> = new Map()
+
 // Helper to get user email from auth header (mock)
 function getUserEmail(authHeader?: string): string {
   // In production, decode JWT token
+  // For mock: extract email from Bearer token if it's a mock token
+  if (authHeader && authHeader.startsWith('Bearer mock-token-')) {
+    // Extract email from token or use default
+    return 'user@example.com'
+  }
   return 'user@example.com'
 }
 
 // Middleware to require auth
-function requireAuth(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+function requireAuth(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization
   if (!authHeader) {
     return res.status(401).json({ error: 'AUTH_REQUIRED', message: 'Authorization required' })
@@ -110,6 +124,35 @@ router.put('/profile', requireAuth, validate(userValidation.updateProfile), asyn
   })
   
   res.json({ success: true, message: 'Profile updated successfully' })
+}))
+
+// GET /api/user/settings - Get user settings
+router.get('/settings', requireAuth, asyncHandler(async (req, res) => {
+  const email = getUserEmail(req.headers.authorization)
+  const settings = userSettings.get(email) || { 
+    emailNotifications: true, 
+    pushNotifications: true, 
+    weeklyDigest: false, 
+    language: 'en',
+    timezone: 'UTC'
+  }
+  res.json(settings)
+}))
+
+// PUT /api/user/settings - Update user settings
+router.put('/settings', requireAuth, asyncHandler(async (req, res) => {
+  const email = getUserEmail(req.headers.authorization)
+  const { emailNotifications, pushNotifications, weeklyDigest, language, timezone } = req.body
+  
+  userSettings.set(email, {
+    emailNotifications: emailNotifications !== undefined ? emailNotifications : true,
+    pushNotifications: pushNotifications !== undefined ? pushNotifications : true,
+    weeklyDigest: weeklyDigest !== undefined ? weeklyDigest : false,
+    language: language || 'en',
+    timezone: timezone || 'UTC'
+  })
+  
+  res.json({ success: true, message: 'Settings updated successfully' })
 }))
 
 export default router

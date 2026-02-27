@@ -30,7 +30,7 @@ function Home() {
       setUser(JSON.parse(userData))
     }
 
-    fetch('http://localhost:3001/api/apps')
+    fetch('http://localhost:3003/api/apps')
       .then(res => res.json())
       .then(data => {
         setApps(data.apps || [])

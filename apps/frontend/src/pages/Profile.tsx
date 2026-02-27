@@ -33,7 +33,7 @@ function Profile() {
     const user = JSON.parse(userData)
     setProfile(prev => ({ ...prev, email: user.email }))
 
-    fetch('http://localhost:3001/api/user/profile', {
+    fetch('http://localhost:3003/api/user/profile', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -72,7 +72,7 @@ function Profile() {
     }
 
     try {
-      const res = await fetch('http://localhost:3001/api/user/profile', {
+      const res = await fetch('http://localhost:3003/api/user/profile', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

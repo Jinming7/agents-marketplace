@@ -30,7 +30,7 @@ function AppDetail() {
       setUser(JSON.parse(userData))
     }
 
-    fetch(`http://localhost:3001/api/apps/${appId}`)
+    fetch(`http://localhost:3003/api/apps/${appId}`)
       .then(res => res.json())
       .then(data => {
         if (data.error) {
@@ -62,7 +62,7 @@ function AppDetail() {
     setInstalling(true)
     
     try {
-      const res = await fetch('http://localhost:3001/api/user/installations', {
+      const res = await fetch('http://localhost:3003/api/user/installations', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
