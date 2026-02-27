@@ -94,9 +94,9 @@ const reviews: Map<string, Array<{id: string; userId: string; userName: string; 
   ]]
 ])
 
-// GET /api/apps - List all apps with optional filtering
+// GET /api/apps - List all apps with optional filtering and pagination
 router.get('/', validate(appValidation.list), asyncHandler(async (req, res) => {
-  const { q, category, sort } = req.query
+  const { q, category, sort, page = '1', pageSize = '10' } = req.query
   let result = [...apps]
   
   if (q && typeof q === 'string') {
@@ -119,7 +119,21 @@ router.get('/', validate(appValidation.list), asyncHandler(async (req, res) => {
     result.sort((a, b) => a.name.localeCompare(b.name))
   }
   
-  res.json({ apps: result, total: result.length })
+  // Pagination
+  const pageNum = Math.max(1, parseInt(page as string, 10))
+  const pageSizeNum = Math.min(50, Math.max(1, parseInt(pageSize as string, 10)))
+  const startIndex = (pageNum - 1) * pageSizeNum
+  const endIndex = startIndex + pageSizeNum
+  
+  const paginatedResult = result.slice(startIndex, endIndex)
+  
+  res.json({ 
+    apps: paginatedResult, 
+    total: result.length,
+    page: pageNum,
+    pageSize: pageSizeNum,
+    totalPages: Math.ceil(result.length / pageSizeNum)
+  })
 }))
 
 // GET /api/apps/:id - Get app by ID
