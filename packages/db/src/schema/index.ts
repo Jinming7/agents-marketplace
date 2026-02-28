@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, integer, decimal, boolean, uuid } from 'drizzle-orm/pg-core'
+import { pgTable, text, timestamp, integer, decimal, boolean, uuid, date, varchar } from 'drizzle-orm/pg-core'
 
 // Users table
 export const users = pgTable('users', {
@@ -13,62 +13,61 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at').defaultNow(),
 })
 
-// Apps table
-export const apps = pgTable('apps', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  name: text('name').notNull(),
-  description: text('description').notNull(),
-  category: text('category').notNull(),
-  icon: text('icon'),
-  version: text('version'),
-  developer: text('developer'),
-  installs: integer('installs').default(0),
-  rating: decimal('rating', { precision: 2, scale: 1 }).default('0.0'),
-  screenshots: text('screenshots').array(),
-  lastUpdated: timestamp('last_updated').defaultNow(),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
-})
-
-// Installations table (user-app relationship)
-export const installations = pgTable('installations', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  appId: uuid('app_id').notNull().references(() => apps.id, { onDelete: 'cascade' }),
-  installedAt: timestamp('installed_at').defaultNow(),
-})
-
 // Categories table
 export const categories = pgTable('categories', {
   id: uuid('id').primaryKey().defaultRandom(),
-  name: text('name').notNull().unique(),
+  name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
   description: text('description'),
   icon: text('icon'),
   sortOrder: integer('sort_order').default(0),
 })
 
-// Reviews table
-export const reviews = pgTable('reviews', {
+// Marketplace Categories (existing table)
+export const marketplaceCategories = pgTable('marketplace_categories', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  appId: uuid('app_id').notNull().references(() => apps.id, { onDelete: 'cascade' }),
-  rating: integer('rating').notNull(),
-  title: text('title'),
-  content: text('content'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  icon: varchar('icon', { length: 255 }),
+  createdAt: timestamp('created_at', { withTimezone: true }),
+  updatedAt: timestamp('updated_at', { withTimezone: true }),
 })
 
-// Audit log table
-export const auditLogs = pgTable('audit_logs', {
+// Marketplace Apps (existing table)
+export const marketplaceApps = pgTable('marketplace_apps', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').references(() => users.id),
-  action: text('action').notNull(),
-  entityType: text('entity_type').notNull(),
-  entityId: uuid('entity_id'),
-  details: text('details'),
-  ipAddress: text('ip_address'),
-  userAgent: text('user_agent'),
-  createdAt: timestamp('created_at').defaultNow(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  categoryName: varchar('category_name', { length: 255 }),
+  installs: integer('installs'),
+  rating: decimal('rating', { precision: 3, scale: 2 }),
+  version: varchar('version', { length: 255 }),
+  developer: varchar('developer', { length: 255 }),
+  lastUpdated: date('last_updated'),
+  pricing: varchar('pricing', { length: 255 }),
+  highlights: text('highlights').array(),
+  screenshots: text('screenshots').array(),
+  compatibility: text('compatibility').array(),
+  createdAt: timestamp('created_at', { withTimezone: true }),
+  updatedAt: timestamp('updated_at', { withTimezone: true }),
+})
+
+// Marketplace Reviews (existing table)
+export const marketplaceReviews = pgTable('marketplace_reviews', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  appId: uuid('app_id'),
+  userId: varchar('user_id', { length: 255 }).notNull(),
+  userName: varchar('user_name', { length: 255 }).notNull(),
+  rating: integer('rating').notNull(),
+  comment: text('comment'),
+  createdAt: timestamp('created_at', { withTimezone: true }),
+})
+
+// Apps table (simple)
+export const apps = pgTable('apps', {
+  appKey: text('app_key').primaryKey(),
+  name: text('name').notNull(),
+  summary: text('summary').notNull(),
+  description: text('description').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 })

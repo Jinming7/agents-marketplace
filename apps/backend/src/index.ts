@@ -5,6 +5,7 @@ import { config } from './lib/config.js'
 import { appsRouter } from './routes/apps.js'
 import { authRouter } from './routes/auth.js'
 import { userRouter } from './routes/user.js'
+import { pluginsRouter } from './routes/plugins.js'
 
 const app = express()
 
@@ -25,6 +26,7 @@ app.get('/health', (req, res) => {
 app.use('/api/apps', appsRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/user', userRouter)
+app.use('/api/plugins', pluginsRouter)
 
 // Error handler
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
