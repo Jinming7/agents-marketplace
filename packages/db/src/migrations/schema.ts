@@ -21,10 +21,13 @@ export const marketplaceApps = pgTable("marketplace_apps", {
 	version: varchar({ length: 255 }),
 	developer: varchar({ length: 255 }),
 	lastUpdated: date("last_updated"),
-	pricing: varchar({ length: 255 }),
+	pricing: text(), // Changed from varchar(255) to text for JSON data
 	highlights: text().array(),
 	screenshots: text().array(),
 	compatibility: text().array(),
+	icon: varchar({ length: 50 }), // App icon emoji
+	featured: boolean().default(false),
+	verified: boolean().default(false),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }),
 });

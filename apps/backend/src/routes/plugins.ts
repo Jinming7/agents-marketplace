@@ -1,154 +1,205 @@
 import { Router } from 'express'
-import { mockApps } from '../data/mockApps.js'
+import postgres from 'postgres'
 
 export const pluginsRouter = Router()
 
-// Categories derived from apps
-const getCategories = () => {
-  const categoryMap = new Map<string, number>()
-  mockApps.forEach(app => {
-    categoryMap.set(app.category, (categoryMap.get(app.category) || 0) + 1)
-  })
-  return Array.from(categoryMap.entries()).map(([name, count], i) => ({
-    id: `cat-${i + 1}`,
-    name,
-    icon: getCategoryIcon(name),
-    count,
-  }))
-}
-
-function getCategoryIcon(category: string): string {
-  const icons: Record<string, string> = {
-    'Project Management': '📊',
-    'Automation': '⚡',
-    'Communication': '💬',
-    'Analytics': '📈',
-    'Design': '🎨',
-    'Development': '👨‍💻',
-    'AI & Machine Learning': '🤖',
-    'Security': '🔒',
-  }
-  return icons[category] || '📦'
+// Database connection
+const getDb = () => {
+  return postgres(process.env.DATABASE_URL || '', { prepare: false })
 }
 
 // GET /api/plugins - List all apps with filters
-pluginsRouter.get('/', (req, res) => {
-  const { category, search, sort, limit, offset } = req.query
+pluginsRouter.get('/', async (req, res) => {
+  const sql = getDb()
   
-  let apps = [...mockApps]
-  
-  // Filter by category
-  if (category) {
-    apps = apps.filter(app => 
-      app.category.toLowerCase().includes((category as string).toLowerCase().replace('-', ' '))
-    )
+  try {
+    const { category, search, sort, limit = 20, offset = 0 } = req.query
+    
+    // Build query
+    let query = 'SELECT * FROM marketplace_apps'
+    const conditions = []
+    const params: any[] = []
+    let paramIndex = 1
+    
+    if (category) {
+      conditions.push(`category_name ILIKE $${paramIndex++}`)
+      params.push(`%${category}%`)
+    }
+    
+    if (search) {
+      conditions.push(`(name ILIKE $${paramIndex} OR description ILIKE $${paramIndex})`)
+      params.push(`%${search}%`)
+      paramIndex++
+    }
+    
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ')
+    }
+    
+    // Sort
+    switch (sort) {
+      case 'rating':
+        query += ' ORDER BY rating DESC'
+        break
+      case 'name':
+        query += ' ORDER BY name ASC'
+        break
+      case 'newest':
+        query += ' ORDER BY created_at DESC'
+        break
+      default:
+        query += ' ORDER BY featured DESC, installs DESC'
+    }
+    
+    query += ` LIMIT $${paramIndex++} OFFSET $${paramIndex}`
+    params.push(Number(limit), Number(offset))
+    
+    const apps = await sql.unsafe(query, params)
+    
+    // Get total count
+    const countResult = await sql.unsafe('SELECT COUNT(*) as count FROM marketplace_apps')
+    const total = countResult[0]?.count || 0
+    
+    // Transform data
+    const transformedApps = apps.map((app: any) => ({
+      id: app.id,
+      name: app.name,
+      description: app.description,
+      icon: app.icon || '📦',
+      category: app.category_name,
+      developer: app.developer,
+      rating: parseFloat(app.rating || '0'),
+      downloads: app.installs || 0,
+      verified: app.verified || false,
+      featured: app.featured || false,
+      pricing: app.pricing ? JSON.parse(app.pricing) : null,
+      screenshots: app.screenshots || [],
+      features: app.highlights || [],
+      reviews: [],
+      createdAt: app.created_at,
+      updatedAt: app.updated_at,
+    }))
+    
+    res.json({
+      success: true,
+      data: transformedApps,
+      total: Number(total),
+      limit: Number(limit),
+      offset: Number(offset),
+    })
+  } catch (error) {
+    console.error('Error fetching apps:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch apps' })
+  } finally {
+    await sql.end()
   }
-  
-  // Filter by search
-  if (search) {
-    const searchLower = (search as string).toLowerCase()
-    apps = apps.filter(app =>
-      app.name.toLowerCase().includes(searchLower) ||
-      app.description.toLowerCase().includes(searchLower) ||
-      app.category.toLowerCase().includes(searchLower)
-    )
-  }
-  
-  // Sort
-  switch (sort) {
-    case 'rating':
-      apps.sort((a, b) => b.rating - a.rating)
-      break
-    case 'downloads':
-      apps.sort((a, b) => b.downloads - a.downloads)
-      break
-    case 'name':
-      apps.sort((a, b) => a.name.localeCompare(b.name))
-      break
-    case 'newest':
-      apps.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      break
-    default:
-      // Default: featured first, then by downloads
-      apps.sort((a, b) => {
-        if (a.featured !== b.featured) return b.featured ? 1 : -1
-        return b.downloads - a.downloads
-      })
-  }
-  
-  // Pagination
-  const limitNum = parseInt(limit as string) || 20
-  const offsetNum = parseInt(offset as string) || 0
-  const paginatedApps = apps.slice(offsetNum, offsetNum + limitNum)
-  
-  res.json({
-    success: true,
-    data: paginatedApps,
-    total: apps.length,
-    limit: limitNum,
-    offset: offsetNum,
-  })
 })
 
 // GET /api/plugins/categories - List categories
-pluginsRouter.get('/categories', (req, res) => {
-  res.json({
-    success: true,
-    data: getCategories(),
-  })
+pluginsRouter.get('/categories', async (req, res) => {
+  const sql = getDb()
+  
+  try {
+    const categories = await sql`
+      SELECT 
+        c.id,
+        c.name,
+        c.icon,
+        (SELECT COUNT(*) FROM marketplace_apps WHERE category_name = c.name) as count
+      FROM marketplace_categories c
+    `
+    
+    res.json({
+      success: true,
+      data: categories,
+    })
+  } catch (error) {
+    console.error('Error fetching categories:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch categories' })
+  } finally {
+    await sql.end()
+  }
 })
 
 // GET /api/plugins/featured - List featured apps
-pluginsRouter.get('/featured', (req, res) => {
-  const featuredApps = mockApps.filter(app => app.featured)
-  res.json({
-    success: true,
-    data: featuredApps,
-  })
+pluginsRouter.get('/featured', async (req, res) => {
+  const sql = getDb()
+  
+  try {
+    const apps = await sql`
+      SELECT * FROM marketplace_apps 
+      WHERE featured = true 
+      LIMIT 10
+    `
+    
+    const transformedApps = apps.map((app: any) => ({
+      id: app.id,
+      name: app.name,
+      description: app.description,
+      icon: app.icon || '📦',
+      category: app.category_name,
+      developer: app.developer,
+      rating: parseFloat(app.rating || '0'),
+      downloads: app.installs || 0,
+      verified: app.verified || false,
+      featured: true,
+      pricing: app.pricing ? JSON.parse(app.pricing) : null,
+    }))
+    
+    res.json({
+      success: true,
+      data: transformedApps,
+    })
+  } catch (error) {
+    console.error('Error fetching featured apps:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch featured apps' })
+  } finally {
+    await sql.end()
+  }
 })
 
 // GET /api/plugins/:id - Get app by ID
-pluginsRouter.get('/:id', (req, res) => {
-  const app = mockApps.find(a => a.id === req.params.id)
+pluginsRouter.get('/:id', async (req, res) => {
+  const sql = getDb()
   
-  if (!app) {
-    return res.status(404).json({
-      success: false,
-      error: 'App not found',
+  try {
+    const apps = await sql`
+      SELECT * FROM marketplace_apps WHERE id = ${req.params.id} LIMIT 1
+    `
+    
+    const app = apps[0]
+    
+    if (!app) {
+      return res.status(404).json({
+        success: false,
+        error: 'App not found',
+      })
+    }
+    
+    res.json({
+      success: true,
+      data: {
+        id: app.id,
+        name: app.name,
+        description: app.description,
+        icon: app.icon || '📦',
+        category: app.category_name,
+        developer: app.developer,
+        rating: parseFloat(app.rating || '0'),
+        downloads: app.installs || 0,
+        verified: app.verified || false,
+        featured: app.featured || false,
+        pricing: app.pricing ? JSON.parse(app.pricing) : null,
+        screenshots: app.screenshots || [],
+        features: app.highlights || [],
+        version: app.version,
+        reviews: [],
+      },
     })
+  } catch (error) {
+    console.error('Error fetching app:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch app' })
+  } finally {
+    await sql.end()
   }
-  
-  res.json({
-    success: true,
-    data: app,
-  })
-})
-
-// GET /api/plugins/:id/reviews - Get app reviews
-pluginsRouter.get('/:id/reviews', (req, res) => {
-  const app = mockApps.find(a => a.id === req.params.id)
-  
-  if (!app) {
-    return res.status(404).json({
-      success: false,
-      error: 'App not found',
-    })
-  }
-  
-  res.json({
-    success: true,
-    data: app.reviews || [],
-  })
-})
-
-// GET /api/plugins/developer/:name - Get apps by developer
-pluginsRouter.get('/developer/:name', (req, res) => {
-  const developerApps = mockApps.filter(
-    app => app.developer.toLowerCase() === decodeURIComponent(req.params.name).toLowerCase()
-  )
-  
-  res.json({
-    success: true,
-    data: developerApps,
-  })
 })

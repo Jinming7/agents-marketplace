@@ -1,31 +1,62 @@
 import { Router } from 'express'
+import postgres from 'postgres'
 
-const router = Router()
+export const categoriesRouter = Router()
 
-// Categories data
-const categories = [
-  { id: 'project-management', name: 'Project Management', icon: '📊', color: 'from-blue-500 to-indigo-500', count: 12 },
-  { id: 'automation', name: 'Automation', icon: '⚡', color: 'from-yellow-500 to-orange-500', count: 8 },
-  { id: 'communication', name: 'Communication', icon: '💬', color: 'from-green-500 to-emerald-500', count: 15 },
-  { id: 'analytics', name: 'Analytics', icon: '📈', color: 'from-purple-500 to-pink-500', count: 6 },
-  { id: 'design', name: 'Design', icon: '🎨', color: 'from-pink-500 to-rose-500', count: 9 },
-  { id: 'development', name: 'Development', icon: '👨‍💻', color: 'from-gray-500 to-slate-500', count: 18 },
-  { id: 'ai-ml', name: 'AI & Machine Learning', icon: '🤖', color: 'from-indigo-500 to-violet-500', count: 7 },
-  { id: 'security', name: 'Security', icon: '🔒', color: 'from-red-500 to-rose-500', count: 5 },
-]
+// Database connection
+const getDb = () => {
+  return postgres(process.env.DATABASE_URL || '', { prepare: false })
+}
 
 // GET /api/categories - List all categories
-router.get('/', (req, res) => {
-  res.json(categories)
+categoriesRouter.get('/', async (req, res) => {
+  const sql = getDb()
+  
+  try {
+    const categories = await sql`
+      SELECT 
+        c.id,
+        c.name,
+        c.icon,
+        (SELECT COUNT(*) FROM marketplace_apps WHERE category_name = c.name) as count
+      FROM marketplace_categories c
+    `
+    
+    res.json({
+      success: true,
+      data: categories,
+    })
+  } catch (error) {
+    console.error('Error fetching categories:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch categories' })
+  } finally {
+    await sql.end()
+  }
 })
 
 // GET /api/categories/:id - Get category by ID
-router.get('/:id', (req, res) => {
-  const category = categories.find(c => c.id === req.params.id)
-  if (!category) {
-    return res.status(404).json({ error: 'Category not found' })
+categoriesRouter.get('/:id', async (req, res) => {
+  const sql = getDb()
+  
+  try {
+    const categories = await sql`
+      SELECT * FROM marketplace_categories WHERE id = ${req.params.id} LIMIT 1
+    `
+    
+    const category = categories[0]
+    
+    if (!category) {
+      return res.status(404).json({ success: false, error: 'Category not found' })
+    }
+    
+    res.json({
+      success: true,
+      data: category,
+    })
+  } catch (error) {
+    console.error('Error fetching category:', error)
+    res.status(500).json({ success: false, error: 'Failed to fetch category' })
+  } finally {
+    await sql.end()
   }
-  res.json(category)
 })
-
-export { router as categoriesRouter }

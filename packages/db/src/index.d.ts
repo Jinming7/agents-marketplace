@@ -173,7 +173,7 @@ export declare const marketplaceApps: import("drizzle-orm/pg-core").PgTableWithC
             name: "pricing";
             tableName: "marketplace_apps";
             dataType: "string";
-            columnType: "PgVarchar";
+            columnType: "PgText";
             data: string;
             driverParam: string;
             notNull: false;
@@ -185,9 +185,7 @@ export declare const marketplaceApps: import("drizzle-orm/pg-core").PgTableWithC
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {
-            length: 255;
-        }>;
+        }, {}, {}>;
         highlights: import("drizzle-orm/pg-core").PgColumn<{
             name: "highlights";
             tableName: "marketplace_apps";
@@ -317,6 +315,59 @@ export declare const marketplaceApps: import("drizzle-orm/pg-core").PgTableWithC
             }, {}, {}, import("drizzle-orm").ColumnBuilderExtraConfig>;
             size: undefined;
         }>;
+        icon: import("drizzle-orm/pg-core").PgColumn<{
+            name: "icon";
+            tableName: "marketplace_apps";
+            dataType: "string";
+            columnType: "PgVarchar";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {
+            length: 50;
+        }>;
+        featured: import("drizzle-orm/pg-core").PgColumn<{
+            name: "featured";
+            tableName: "marketplace_apps";
+            dataType: "boolean";
+            columnType: "PgBoolean";
+            data: boolean;
+            driverParam: boolean;
+            notNull: false;
+            hasDefault: true;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        verified: import("drizzle-orm/pg-core").PgColumn<{
+            name: "verified";
+            tableName: "marketplace_apps";
+            dataType: "boolean";
+            columnType: "PgBoolean";
+            data: boolean;
+            driverParam: boolean;
+            notNull: false;
+            hasDefault: true;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
         createdAt: import("drizzle-orm/pg-core").PgColumn<{
             name: "created_at";
             tableName: "marketplace_apps";
