@@ -6,6 +6,7 @@ import { appsRouter } from './routes/apps.js'
 import { authRouter } from './routes/auth.js'
 import { userRouter } from './routes/user.js'
 import { pluginsRouter } from './routes/plugins.js'
+import { categoriesRouter } from './routes/categories.js'
 
 const app = express()
 
@@ -27,6 +28,7 @@ app.use('/api/apps', appsRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/user', userRouter)
 app.use('/api/plugins', pluginsRouter)
+app.use('/api/categories', categoriesRouter)
 
 // Error handler
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
