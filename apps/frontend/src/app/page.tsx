@@ -21,6 +21,7 @@ interface Category {
   name: string
   icon: string
   count: number
+  color?: string
 }
 
 const defaultCategories: Category[] = [
@@ -138,7 +139,7 @@ export default function HomePage() {
               <p className="text-sm text-gray-500 line-clamp-2 mb-3">{app.description}</p>
               <div className="flex items-center justify-between text-sm">
                 <span className="flex items-center gap-1 text-yellow-500">★★★★★ {app.rating}</span>
-                <span className="text-gray-400">{(app.installs/1000).toFixed(1)}k</span>
+                <span className="text-gray-400">{(app.downloads/1000).toFixed(1)}k</span>
               </div>
             </Link>
           ))}
@@ -225,7 +226,7 @@ export default function HomePage() {
                       ★ {app.rating}
                     </span>
                     <span className="text-gray-400">
-                      {(app.installs / 1000).toFixed(1)}k installs
+                      {(app.downloads / 1000).toFixed(1)}k downloads
                     </span>
                   </div>
                 </div>

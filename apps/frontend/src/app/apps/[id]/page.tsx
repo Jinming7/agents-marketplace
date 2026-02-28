@@ -10,6 +10,7 @@ interface App {
   name: string
   description: string
   shortDescription?: string
+  longDescription?: string
   category: string
   downloads: number
   rating: number
@@ -140,8 +141,8 @@ export default function AppDetailPage() {
                   <span className="text-lg">★★★★★</span>
                   <span className="text-gray-700 font-medium">{app.rating}</span>
                 </span>
-                <span className="text-gray-500">{app.reviews} reviews</span>
-                <span className="text-gray-500">{(app.installs/1000).toFixed(1)}K installs</span>
+                <span className="text-gray-500">{app.reviews || 0} reviews</span>
+                <span className="text-gray-500">{(app.downloads/1000).toFixed(1)}K downloads</span>
               </div>
             </div>
             
@@ -206,11 +207,11 @@ export default function AppDetailPage() {
             {tab === 'overview' && (
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">About this app</h2>
-                <p className="text-gray-600 mb-6 leading-relaxed">{app.longDescription}</p>
+                <p className="text-gray-600 mb-6 leading-relaxed">{app.longDescription || app.description}</p>
                 
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Features</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  {app.features.map((feature, i) => (
+                  {app.features?.map((feature, i) => (
                     <div key={i} className="flex items-center gap-3 p-4 bg-white rounded-lg border border-gray-200">
                       <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
                         ✓
@@ -226,7 +227,7 @@ export default function AppDetailPage() {
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">Features</h2>
                 <div className="space-y-4">
-                  {app.features.map((feature, i) => (
+                  {app.features?.map((feature, i) => (
                     <div key={i} className="p-6 bg-white rounded-xl border border-gray-200">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center text-white text-xl">
@@ -311,7 +312,7 @@ export default function AppDetailPage() {
                 </div>
                 
                 <div className="space-y-4">
-                  {reviewData.map((review) => (
+                  {reviews.map((review) => (
                     <div key={review.id} className="p-6 bg-white rounded-xl border border-gray-200">
                       <div className="flex items-center gap-4 mb-3">
                         <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-xl">
@@ -323,7 +324,7 @@ export default function AppDetailPage() {
                         </div>
                         <div className="ml-auto text-yellow-500">{'★'.repeat(review.rating)}{'☆'.repeat(5-review.rating)}</div>
                       </div>
-                      <p className="text-gray-600">{review.comment}</p>
+                      <p className="text-gray-600">{review.content}</p>
                     </div>
                   ))}
                 </div>
@@ -375,7 +376,7 @@ export default function AppDetailPage() {
               <h3 className="font-semibold text-gray-900 mb-4">Developer</h3>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold">
-                  {app.developer.charAt(0)}
+                  {app.developer?.charAt(0)}
                 </div>
                 <div>
                   <div className="font-medium text-gray-900">{app.developer}</div>
