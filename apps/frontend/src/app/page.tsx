@@ -1,194 +1,320 @@
+'use client'
+
 import Link from 'next/link'
+import { useState } from 'react'
 
 // Mock data for demo
 const mockApps = [
-  {
-    id: '1',
-    name: 'Project Management Plus',
-    description: 'Add Gantt charts, Kanban boards to your ONES projects',
-    category: 'Project Management',
-    installs: 12500,
-    rating: 4.8,
-    icon: '📊',
-  },
-  {
-    id: '2',
-    name: 'Workflow Automator',
-    description: 'Create custom automation rules to boost team efficiency',
-    category: 'Automation',
-    installs: 8900,
-    rating: 4.6,
-    icon: '⚡',
-  },
-  {
-    id: '3',
-    name: 'Git Integration',
-    description: 'Connect GitHub, GitLab for code-project sync',
-    category: 'Development Tools',
-    installs: 6700,
-    rating: 4.9,
-    icon: '🔗',
-  },
-  {
-    id: '4',
-    name: 'Team Collaboration',
-    description: 'Real-time collaboration, comments, @mentions',
-    category: 'Collaboration',
-    installs: 15200,
-    rating: 4.7,
-    icon: '👥',
-  },
-  {
-    id: '5',
-    name: 'Data Reports',
-    description: 'Visual reports, custom dashboards, data export',
-    category: 'Reports',
-    installs: 9800,
-    rating: 4.5,
-    icon: '📈',
-  },
-  {
-    id: '6',
-    name: 'Security Audit',
-    description: 'Operation logs, permission audit, security alerts',
-    category: 'Security',
-    installs: 4500,
-    rating: 4.8,
-    icon: '🔒',
-  },
+  { id: '1', name: 'Project Management Plus', description: 'Add Gantt charts, Kanban boards to your ONES projects', category: 'Project Management', installs: 12500, rating: 4.8, icon: '📊', verified: true, featured: true },
+  { id: '2', name: 'Workflow Automator', description: 'Create custom automation rules to boost team efficiency', category: 'Automation', installs: 8900, rating: 4.6, icon: '⚡', verified: true, featured: true },
+  { id: '3', name: 'Git Integration', description: 'Connect GitHub, GitLab for code-project sync', category: 'Development Tools', installs: 6700, rating: 4.9, icon: '🔗', verified: true, featured: false },
+  { id: '4', name: 'Team Collaboration', description: 'Real-time collaboration, comments, @mentions', category: 'Collaboration', installs: 15200, rating: 4.7, icon: '👥', verified: false, featured: true },
+  { id: '5', name: 'Data Reports', description: 'Visual reports, custom dashboards, data export', category: 'Reports', installs: 9800, rating: 4.5, icon: '📈', verified: true, featured: false },
+  { id: '6', name: 'Security Audit', description: 'Operation logs, permission audit, security alerts', category: 'Security', installs: 4500, rating: 4.8, icon: '🔒', verified: true, featured: false },
+  { id: '7', name: 'AI Assistant', description: 'AI-powered intelligent assistant for smart suggestions', category: 'Automation', installs: 15600, rating: 4.9, icon: '🤖', verified: true, featured: true },
+  { id: '8', name: 'Time Tracker', description: 'Track time spent on tasks and projects', category: 'Project Management', installs: 7200, rating: 4.4, icon: '⏱️', verified: false, featured: false },
+  { id: '9', name: 'Slack Integration', description: 'Push ONES notifications to Slack channels', category: 'Collaboration', installs: 8800, rating: 4.6, icon: '💬', verified: true, featured: false },
 ]
 
-const categories = ['All', 'Project Management', 'Automation', 'Development Tools', 'Collaboration', 'Reports', 'Security']
+const categories = [
+  { id: 'all', name: 'All', icon: '🌐', count: 156, color: 'from-gray-500 to-gray-600' },
+  { id: 'project', name: 'Project Management', icon: '📁', count: 45, color: 'from-blue-500 to-blue-600' },
+  { id: 'automation', name: 'Automation', icon: '⚡', count: 23, color: 'from-orange-500 to-amber-500' },
+  { id: 'development', name: 'Development Tools', icon: '🔧', count: 38, color: 'from-green-500 to-emerald-500' },
+  { id: 'collaboration', name: 'Collaboration', icon: '🤝', count: 28, color: 'from-purple-500 to-pink-500' },
+  { id: 'reports', name: 'Reports', icon: '📊', count: 18, color: 'from-indigo-500 to-purple-500' },
+  { id: 'security', name: 'Security', icon: '🛡️', count: 15, color: 'from-slate-600 to-slate-700' },
+]
 
 export default function HomePage() {
+  const [selectedCategory, setSelectedCategory] = useState('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [sortBy, setSortBy] = useState('installs')
+
+  const filteredApps = mockApps
+    .filter(app => selectedCategory === 'all' || app.category.toLowerCase().includes(selectedCategory))
+    .filter(app => searchQuery === '' || app.name.toLowerCase().includes(searchQuery.toLowerCase()) || app.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => {
+      if (sortBy === 'rating') return b.rating - a.rating
+      if (sortBy === 'name') return a.name.localeCompare(b.name)
+      return b.installs - a.installs
+    })
+
+  const featuredApps = mockApps.filter(app => app.featured)
+
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="bg-white border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link href="/" className="text-xl font-bold text-ones-primary">
-              ONES Marketplace
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">O</span>
+              </div>
+              <span className="text-xl font-bold text-gray-900">ONES Marketplace</span>
             </Link>
             <nav className="hidden md:flex gap-6">
-              <Link href="/" className="text-gray-600 hover:text-ones-primary">
-                应用市场
-              </Link>
-              <Link href="/my-apps" className="text-gray-600 hover:text-ones-primary">
-                我的应用
-              </Link>
+              <Link href="/" className="text-blue-600 font-medium">Marketplace</Link>
+              <Link href="/my-apps" className="text-gray-600 hover:text-gray-900">My Apps</Link>
+              <Link href="/docs" className="text-gray-600 hover:text-gray-900">Docs</Link>
+              <Link href="/support" className="text-gray-600 hover:text-gray-900">Support</Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">
-            <Link
-              href="/login"
-              className="px-4 py-2 text-gray-600 hover:text-ones-primary"
-            >
-              Login
-            </Link>
-            <Link
-              href="/register"
-              className="px-4 py-2 bg-ones-primary text-white rounded-lg hover:bg-blue-600"
-            >
-              Sign Up
-            </Link>
+            <Link href="/login" className="text-gray-600 hover:text-gray-900">Login</Link>
+            <Link href="/register" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Sign Up</Link>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl font-bold mb-4">ONES Marketplace</h1>
-          <p className="text-xl text-blue-100 mb-8">
+      <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white py-20 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/30 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-500/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 text-center">
+          <h1 className="text-5xl font-bold mb-6">ONES Marketplace</h1>
+          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
             Discover, install and manage enterprise apps for your ONES platform
           </p>
-          <div className="max-w-2xl mx-auto">
+          
+          {/* Search */}
+          <div className="max-w-2xl mx-auto mb-8">
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search apps..."
-                className="w-full px-6 py-4 rounded-full text-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                placeholder="Search apps by name, category, or feature..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-6 py-4 pr-32 rounded-xl text-gray-800 shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-300"
               />
-              <button className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-ones-primary text-white rounded-full hover:bg-blue-600">
+              <button className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                 Search
               </button>
             </div>
           </div>
+          
+          {/* Trust Badges */}
+          <div className="flex justify-center gap-6 text-sm flex-wrap">
+            <span className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
+              <span>🔒</span> SOC2 Certified
+            </span>
+            <span className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
+              <span>✓</span> GDPR Compliant
+            </span>
+            <span className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
+              <span>👥</span> 200K+ Users
+            </span>
+            <span className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
+              <span>⭐</span> 4.8 Avg Rating
+            </span>
+          </div>
         </div>
       </section>
 
-      {/* Main Content */}
+      {/* Featured Apps Section */}
       <section className="max-w-7xl mx-auto px-4 py-12">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Sidebar - Categories */}
-          <aside className="w-full md:w-64 shrink-0">
-            <h2 className="font-semibold text-lg mb-4">Categories</h2>
-            <div className="space-y-2">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
-                    category === 'All'
-                      ? 'bg-ones-primary text-white'
-                      : 'hover:bg-gray-100'
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </aside>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">Featured Apps</h2>
+          <Link href="/featured" className="text-blue-600 hover:underline">View all →</Link>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {featuredApps.map((app) => (
+            <Link
+              key={app.id}
+              href={`/apps/${app.id}`}
+              className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative group"
+            >
+              <div className="absolute top-3 left-3">
+                <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                  ✨ SPOTLIGHT
+                </span>
+              </div>
+              <div className="text-4xl mb-4 mt-6">{app.icon}</div>
+              <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-blue-600">{app.name}</h3>
+              <p className="text-sm text-gray-500 line-clamp-2 mb-3">{app.description}</p>
+              <div className="flex items-center justify-between text-sm">
+                <span className="flex items-center gap-1 text-yellow-500">★★★★★ {app.rating}</span>
+                <span className="text-gray-400">{(app.installs/1000).toFixed(1)}k</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
 
-          {/* App Grid */}
-          <div className="flex-1">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="font-semibold text-lg">Popular Apps</h2>
-              <select className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-ones-primary">
-                <option value="installs">By Installs</option>
-                <option value="rating">By Rating</option>
-                <option value="name">By Name</option>
-              </select>
-            </div>
+      {/* Categories Section */}
+      <section className="max-w-7xl mx-auto px-4 py-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Browse by Category</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`p-4 rounded-xl text-center transition-all duration-300 hover:scale-105 ${
+                selectedCategory === cat.id
+                  ? 'bg-gradient-to-br ' + cat.color + ' text-white shadow-lg'
+                  : 'bg-white border border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <div className="text-3xl mb-2">{cat.icon}</div>
+              <div className={`text-sm font-medium ${selectedCategory === cat.id ? 'text-white' : 'text-gray-700'}`}>
+                {cat.name}
+              </div>
+              <div className={`text-xs ${selectedCategory === cat.id ? 'text-white/80' : 'text-gray-400'}`}>
+                {cat.count} apps
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockApps.map((app) => (
-                <Link
-                  key={app.id}
-                  href={`/apps/${app.id}`}
-                  className="bg-white rounded-xl border p-6 hover:shadow-lg transition-shadow"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="text-4xl">{app.icon}</div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-lg truncate">{app.name}</h3>
-                      <p className="text-sm text-gray-500 line-clamp-2 mt-1">
-                        {app.description}
-                      </p>
-                    </div>
+      {/* App Grid Section */}
+      <section className="max-w-7xl mx-auto px-4 py-12">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">
+            {selectedCategory === 'all' ? 'All Apps' : categories.find(c => c.id === selectedCategory)?.name}
+            <span className="text-sm font-normal text-gray-500 ml-2">({filteredApps.length} apps)</span>
+          </h2>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="installs">By Installs</option>
+            <option value="rating">By Rating</option>
+            <option value="name">By Name</option>
+          </select>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredApps.map((app) => (
+            <Link
+              key={app.id}
+              href={`/apps/${app.id}`}
+              className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+            >
+              <div className="flex items-start gap-4">
+                <div className="relative">
+                  <div className="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center text-3xl">
+                    {app.icon}
                   </div>
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                    <span className="text-sm text-gray-500">{app.category}</span>
-                    <div className="flex items-center gap-4 text-sm">
-                      <span className="flex items-center gap-1">
-                        ⭐ {app.rating}
-                      </span>
-                      <span className="text-gray-400">
-                        {(app.installs / 1000).toFixed(1)}k
-                      </span>
+                  {app.verified && (
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white">
+                      <span className="text-white text-xs">✓</span>
                     </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                    {app.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 line-clamp-2 mt-1">{app.description}</p>
+                </div>
+              </div>
+              
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-between">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                    {app.category}
+                  </span>
+                  <div className="flex items-center gap-4 text-sm">
+                    <span className="flex items-center gap-1 text-yellow-500">
+                      ★ {app.rating}
+                    </span>
+                    <span className="text-gray-400">
+                      {(app.installs / 1000).toFixed(1)}k installs
+                    </span>
                   </div>
-                </Link>
-              ))}
-            </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-4">Stay Updated</h2>
+          <p className="text-gray-400 mb-8">Get notified about new apps and updates</p>
+          <div className="flex max-w-md mx-auto gap-4">
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className="flex-1 px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+              Subscribe
+            </button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 text-center text-gray-500">
-          <p>© 2024 ONES Marketplace. All rights reserved.</p>
+      <footer className="bg-gray-900 text-gray-300">
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <h3 className="text-white font-semibold mb-4">Product</h3>
+              <ul className="space-y-2">
+                <li><Link href="/features" className="hover:text-white">Features</Link></li>
+                <li><Link href="/pricing" className="hover:text-white">Pricing</Link></li>
+                <li><Link href="/integrations" className="hover:text-white">Integrations</Link></li>
+                <li><Link href="/api" className="hover:text-white">API</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-white font-semibold mb-4">Resources</h3>
+              <ul className="space-y-2">
+                <li><Link href="/docs" className="hover:text-white">Documentation</Link></li>
+                <li><Link href="/blog" className="hover:text-white">Blog</Link></li>
+                <li><Link href="/community" className="hover:text-white">Community</Link></li>
+                <li><Link href="/support" className="hover:text-white">Support</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-white font-semibold mb-4">Company</h3>
+              <ul className="space-y-2">
+                <li><Link href="/about" className="hover:text-white">About</Link></li>
+                <li><Link href="/careers" className="hover:text-white">Careers</Link></li>
+                <li><Link href="/press" className="hover:text-white">Press</Link></li>
+                <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-white font-semibold mb-4">Legal</h3>
+              <ul className="space-y-2">
+                <li><Link href="/privacy" className="hover:text-white">Privacy</Link></li>
+                <li><Link href="/terms" className="hover:text-white">Terms</Link></li>
+                <li><Link href="/security" className="hover:text-white">Security</Link></li>
+                <li><Link href="/cookies" className="hover:text-white">Cookies</Link></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">O</span>
+              </div>
+              <span className="font-bold text-white">ONES Marketplace</span>
+            </div>
+            <p className="text-sm text-gray-500">© 2024 ONES. All rights reserved.</p>
+            <div className="flex items-center gap-4">
+              <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700">
+                <span>𝕏</span>
+              </a>
+              <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700">
+                <span>in</span>
+              </a>
+              <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700">
+                <span>▶</span>
+              </a>
+            </div>
+          </div>
         </div>
       </footer>
     </main>

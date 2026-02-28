@@ -5,154 +5,404 @@ import Link from 'next/link'
 import { useState } from 'react'
 
 const apps = [
-  { id: '1', name: 'Project Management Plus', description: 'Add Gantt charts, Kanban boards to your ONES projects', category: 'Project Management', installs: 12500, rating: 4.8, icon: '📊' },
-  { id: '2', name: 'Workflow Automator', description: 'Create custom automation rules to boost team efficiency', category: 'Automation', installs: 8900, rating: 4.6, icon: '⚡' },
-  { id: '3', name: 'Git Integration', description: 'Connect GitHub, GitLab for code-project sync', category: 'Development Tools', installs: 6700, rating: 4.9, icon: '🔗' },
-  { id: '4', name: 'Team Collaboration', description: 'Real-time collaboration, comments, @mentions', category: 'Collaboration', installs: 15200, rating: 4.7, icon: '👥' },
-  { id: '5', name: 'Data Reports', description: 'Visual reports, custom dashboards, data export', category: 'Reports', installs: 9800, rating: 4.5, icon: '📈' },
-  { id: '6', name: 'Security Audit', description: 'Operation logs, permission audit, security alerts', category: 'Security', installs: 4500, rating: 4.8, icon: '🔒' },
+  { id: '1', name: 'Project Management Plus', description: 'Add Gantt charts, Kanban boards to your ONES projects', longDescription: 'Project Management Plus extends ONES with powerful project visualization tools including Gantt charts, Kanban boards, and advanced timeline views. Perfect for teams that need flexible project planning and execution.', category: 'Project Management', installs: 12500, rating: 4.8, reviews: 156, icon: '📊', verified: true, developer: 'ONES Official', features: ['Gantt Charts', 'Kanban Boards', 'Timeline View', 'Resource Management'] },
+  { id: '2', name: 'Workflow Automator', description: 'Create custom automation rules to boost team efficiency', longDescription: 'Workflow Automator empowers teams to create powerful automation rules without coding. Automate repetitive tasks, set up triggers and actions, and streamline your workflow.', category: 'Automation', installs: 8900, rating: 4.6, reviews: 89, icon: '⚡', verified: true, developer: 'ONES Official', features: ['No-Code Automation', 'Custom Triggers', 'Action Templates', 'Real-time Execution'] },
+  { id: '3', name: 'Git Integration', description: 'Connect GitHub, GitLab for code-project sync', longDescription: 'Git Integration seamlessly connects your code repositories with ONES projects. Link commits to tasks, track pull requests, and maintain full visibility of your development workflow.', category: 'Development Tools', installs: 6700, rating: 4.9, reviews: 67, icon: '🔗', verified: true, developer: 'DevTools Inc', features: ['GitHub Integration', 'GitLab Support', 'Commit Linking', 'PR Tracking'] },
+  { id: '4', name: 'Team Collaboration', description: 'Real-time collaboration, comments, @mentions', longDescription: 'Team Collaboration enhances team communication with real-time updates, threaded comments, and @mentions. Keep everyone in sync and never miss important discussions.', category: 'Collaboration', installs: 15200, rating: 4.7, reviews: 124, icon: '👥', verified: false, developer: 'Collab Labs', features: ['Real-time Updates', 'Threaded Comments', '@Mentions', 'Activity Feed'] },
+  { id: '5', name: 'Data Reports', description: 'Visual reports, custom dashboards, data export', longDescription: 'Data Reports provides powerful visualization and reporting capabilities. Create custom dashboards, generate insights, and export data in multiple formats.', category: 'Reports', installs: 9800, rating: 4.5, reviews: 78, icon: '📈', verified: true, developer: 'Analytics Pro', features: ['Custom Dashboards', 'Visual Reports', 'Data Export', 'Scheduled Reports'] },
+  { id: '6', name: 'Security Audit', description: 'Operation logs, permission audit, security alerts', longDescription: 'Security Audit helps you maintain compliance and security. Track all operations, audit permissions, and receive alerts for suspicious activities.', category: 'Security', installs: 4500, rating: 4.8, reviews: 56, icon: '🔒', verified: true, developer: 'SecureTech', features: ['Operation Logs', 'Permission Audit', 'Security Alerts', 'Compliance Reports'] },
+  { id: '7', name: 'AI Assistant', description: 'AI-powered intelligent assistant for smart suggestions', longDescription: 'AI Assistant leverages artificial intelligence to provide smart suggestions, automate task creation, and help teams work more efficiently.', category: 'Automation', installs: 15600, rating: 4.9, reviews: 234, icon: '🤖', verified: true, developer: 'ONES Official', features: ['Smart Suggestions', 'Task Automation', 'Natural Language', 'Learning AI'] },
+  { id: '8', name: 'Time Tracker', description: 'Track time spent on tasks and projects', longDescription: 'Time Tracker helps teams understand where their time goes. Track time on tasks, generate timesheets, and improve productivity.', category: 'Project Management', installs: 7200, rating: 4.4, reviews: 45, icon: '⏱️', verified: false, developer: 'TimeWise', features: ['Time Tracking', 'Timesheets', 'Reports', 'Integrations'] },
+  { id: '9', name: 'Slack Integration', description: 'Push ONES notifications to Slack channels', longDescription: 'Slack Integration keeps your team informed by pushing ONES notifications directly to Slack channels. Stay updated without leaving Slack.', category: 'Collaboration', installs: 8800, rating: 4.6, reviews: 78, icon: '💬', verified: true, developer: 'ConnectLabs', features: ['Slack Notifications', 'Custom Channels', 'Message Templates', 'Two-way Sync'] },
+]
+
+const reviewData = [
+  { id: 1, author: 'John D.', avatar: '👨‍💼', rating: 5, date: '2024-02-20', comment: 'Great app! Really improves our team productivity. The Gantt charts are especially useful for project planning.' },
+  { id: 2, author: 'Sarah M.', avatar: '👩‍💻', rating: 4, date: '2024-02-18', comment: 'Very useful, would recommend to others. Minor UI issues but overall solid.' },
+  { id: 3, author: 'Mike R.', avatar: '👨‍🔬', rating: 5, date: '2024-02-15', comment: 'Exactly what we needed. The integration with ONES is seamless.' },
+  { id: 4, author: 'Emily K.', avatar: '👩‍🎨', rating: 5, date: '2024-02-12', comment: 'Outstanding support team. They helped us set everything up quickly.' },
 ]
 
 export default function AppDetailPage() {
   const params = useParams()
   const [tab, setTab] = useState('overview')
+  const [isInstalling, setIsInstalling] = useState(false)
+  
   const app = apps.find(a => a.id === params.id)
-
+  const relatedApps = apps.filter(a => a.id !== params.id && a.category === app?.category).slice(0, 3)
+  
   if (!app) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">App not found</h1>
-          <Link href="/" className="text-blue-600 hover:underline">Back to Marketplace</Link>
+          <div className="text-6xl mb-4">🔍</div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">App not found</h1>
+          <Link href="/" className="text-blue-600 hover:underline">← Back to Marketplace</Link>
         </div>
       </div>
     )
   }
 
+  const handleInstall = () => {
+    setIsInstalling(true)
+    setTimeout(() => setIsInstalling(false), 2000)
+  }
+
   return (
-    <main className="min-h-screen bg-gray-50">
-      <header className="border-b bg-white">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <Link href="/" className="text-blue-600 hover:underline">← Back to Marketplace</Link>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">O</span>
+              </div>
+              <span className="text-xl font-bold text-gray-900">ONES Marketplace</span>
+            </Link>
+            <nav className="hidden md:flex gap-6">
+              <Link href="/" className="text-gray-600 hover:text-gray-900">Marketplace</Link>
+              <Link href="/my-apps" className="text-gray-600 hover:text-gray-900">My Apps</Link>
+            </nav>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/login" className="text-gray-600 hover:text-gray-900">Login</Link>
+            <Link href="/register" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Sign Up</Link>
+          </div>
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-xl border p-8">
-          <div className="flex items-start gap-6 mb-6">
-            <span className="text-6xl">{app.icon}</span>
+      {/* App Hero */}
+      <div className="bg-gradient-to-r from-gray-50 to-blue-50 py-12 border-b">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-start gap-8">
+            {/* Icon */}
+            <div className="w-24 h-24 bg-white rounded-2xl shadow-lg flex items-center justify-center text-5xl border border-gray-100">
+              {app.icon}
+            </div>
+            
+            {/* Info */}
             <div className="flex-1">
-              <h1 className="text-3xl font-bold">{app.name}</h1>
-              <p className="text-gray-500 mt-1">{app.category}</p>
-              <div className="flex items-center gap-4 mt-2">
-                <span className="flex items-center gap-1">
-                  <span className="text-yellow-400">⭐</span> {app.rating}
+              <div className="flex items-center gap-3 mb-2 flex-wrap">
+                <h1 className="text-3xl font-bold text-gray-900">{app.name}</h1>
+                {app.verified && (
+                  <>
+                    <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full flex items-center gap-1">
+                      ✓ Verified
+                    </span>
+                    <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full flex items-center gap-1">
+                      🔒 Security Reviewed
+                    </span>
+                    <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full flex items-center gap-1">
+                      ☁️ Cloud Ready
+                    </span>
+                  </>
+                )}
+              </div>
+              <p className="text-gray-500 mb-4">{app.category} • by {app.developer}</p>
+              <div className="flex items-center gap-6 text-sm">
+                <span className="flex items-center gap-1 text-yellow-500">
+                  <span className="text-lg">★★★★★</span>
+                  <span className="text-gray-700 font-medium">{app.rating}</span>
                 </span>
-                <span className="text-gray-500">{(app.installs / 1000).toFixed(1)}K installs</span>
+                <span className="text-gray-500">{app.reviews} reviews</span>
+                <span className="text-gray-500">{(app.installs/1000).toFixed(1)}K installs</span>
               </div>
             </div>
-            <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              Install
-            </button>
-          </div>
-
-          <p className="text-gray-600 text-lg mb-8">{app.description}</p>
-
-          <div className="border-b mb-6">
-            <div className="flex gap-4">
-              {['overview', 'reviews', 'pricing', 'installation'].map(t => (
-                <button
-                  key={t}
-                  onClick={() => setTab(t)}
-                  className={`px-4 py-3 border-b-2 capitalize ${
-                    tab === t ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
+            
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                onClick={handleInstall}
+                disabled={isInstalling}
+                className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50"
+              >
+                {isInstalling ? 'Installing...' : 'Install'}
+              </button>
+              <button className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50">
+                Try Demo
+              </button>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div className="py-4">
+      {/* Screenshots */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Screenshots</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center border border-gray-200">
+              <div className="text-center">
+                <div className="text-4xl mb-2">🖼️</div>
+                <span className="text-gray-500">Screenshot {i}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="border-b border-gray-200">
+          <div className="flex gap-8">
+            {['overview', 'features', 'pricing', 'reviews', 'installation'].map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={`px-1 py-4 text-sm font-medium capitalize border-b-2 transition-colors ${
+                  tab === t
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2">
             {tab === 'overview' && (
               <div>
-                <h2 className="text-xl font-semibold mb-4">About this app</h2>
-                <p className="text-gray-600">{app.description}</p>
-                <div className="mt-6">
-                  <h3 className="font-semibold mb-2">Key Features</h3>
-                  <ul className="list-disc list-inside text-gray-600 space-y-1">
-                    <li>Seamless integration with ONES platform</li>
-                    <li>Real-time data synchronization</li>
-                    <li>Customizable workflows</li>
-                    <li>Enterprise-grade security</li>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">About this app</h2>
+                <p className="text-gray-600 mb-6 leading-relaxed">{app.longDescription}</p>
+                
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Features</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {app.features.map((feature, i) => (
+                    <div key={i} className="flex items-center gap-3 p-4 bg-white rounded-lg border border-gray-200">
+                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
+                        ✓
+                      </div>
+                      <span className="font-medium text-gray-900">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {tab === 'features' && (
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Features</h2>
+                <div className="space-y-4">
+                  {app.features.map((feature, i) => (
+                    <div key={i} className="p-6 bg-white rounded-xl border border-gray-200">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center text-white text-xl">
+                          {['🚀', '⚡', '🔗', '📊'][i % 4]}
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">{feature}</h3>
+                          <p className="text-sm text-gray-500">Enhanced functionality for your workflow</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {tab === 'pricing' && (
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Pricing Plans</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="p-6 bg-white rounded-xl border border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Free</h3>
+                    <p className="text-3xl font-bold text-gray-900 mb-4">$0<span className="text-sm font-normal text-gray-500">/month</span></p>
+                    <ul className="space-y-3 mb-6">
+                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Basic features</li>
+                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Up to 5 users</li>
+                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Community support</li>
+                      <li className="flex items-center gap-2 text-sm text-gray-400"><span>✗</span> Advanced features</li>
+                    </ul>
+                    <button className="w-full py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Get Started</button>
+                  </div>
+                  
+                  <div className="p-6 bg-white rounded-xl border-2 border-blue-600 relative">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded-full">
+                      RECOMMENDED
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Pro</h3>
+                    <p className="text-3xl font-bold text-gray-900 mb-4">$29<span className="text-sm font-normal text-gray-500">/month</span></p>
+                    <ul className="space-y-3 mb-6">
+                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> All features</li>
+                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Up to 50 users</li>
+                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Priority support</li>
+                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Custom integrations</li>
+                    </ul>
+                    <button className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Choose Plan</button>
+                  </div>
+                  
+                  <div className="p-6 bg-white rounded-xl border border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Enterprise</h3>
+                    <p className="text-3xl font-bold text-gray-900 mb-4">Custom</p>
+                    <ul className="space-y-3 mb-6">
+                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Everything in Pro</li>
+                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Unlimited users</li>
+                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Dedicated support</li>
+                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> SLA guarantee</li>
+                    </ul>
+                    <button className="w-full py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Contact Sales</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {tab === 'reviews' && (
+              <div>
+                <div className="flex items-start gap-8 mb-8">
+                  <div className="text-center">
+                    <div className="text-5xl font-bold text-gray-900">{app.rating}</div>
+                    <div className="text-yellow-500 text-lg mb-1">★★★★★</div>
+                    <div className="text-sm text-gray-500">{app.reviews} reviews</div>
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    {[5, 4, 3, 2, 1].map((stars) => (
+                      <div key={stars} className="flex items-center gap-2">
+                        <span className="text-sm text-gray-500 w-8">{stars}★</span>
+                        <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-full bg-yellow-400 rounded-full" style={{ width: `${stars === 5 ? 70 : stars === 4 ? 20 : 10}%` }} />
+                        </div>
+                        <span className="text-sm text-gray-500 w-8">{stars === 5 ? '70%' : stars === 4 ? '20%' : '10%'}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  {reviewData.map((review) => (
+                    <div key={review.id} className="p-6 bg-white rounded-xl border border-gray-200">
+                      <div className="flex items-center gap-4 mb-3">
+                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-xl">
+                          {review.avatar}
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900">{review.author}</div>
+                          <div className="text-sm text-gray-500">{review.date}</div>
+                        </div>
+                        <div className="ml-auto text-yellow-500">{'★'.repeat(review.rating)}{'☆'.repeat(5-review.rating)}</div>
+                      </div>
+                      <p className="text-gray-600">{review.comment}</p>
+                    </div>
+                  ))}
+                </div>
+                
+                <button className="mt-6 w-full py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium">
+                  Write a Review
+                </button>
+              </div>
+            )}
+
+            {tab === 'installation' && (
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Installation Guide</h2>
+                <div className="space-y-4">
+                  {[
+                    { step: 1, title: 'Click Install', desc: 'Click the Install button at the top of this page' },
+                    { step: 2, title: 'Choose Workspace', desc: 'Select your ONES workspace where you want to install the app' },
+                    { step: 3, title: 'Configure Settings', desc: 'Customize the app settings according to your needs' },
+                    { step: 4, title: 'Start Using', desc: 'The app is now ready! Start exploring its features' },
+                  ].map((item) => (
+                    <div key={item.step} className="flex items-start gap-4 p-4 bg-white rounded-xl border border-gray-200">
+                      <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold shrink-0">
+                        {item.step}
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-900">{item.title}</h3>
+                        <p className="text-sm text-gray-500">{item.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
+                  <h3 className="font-semibold text-gray-900 mb-3">Requirements</h3>
+                  <ul className="space-y-2 text-sm text-gray-600">
+                    <li className="flex items-center gap-2"><span className="text-blue-600">•</span> ONES platform v2.0 or higher</li>
+                    <li className="flex items-center gap-2"><span className="text-blue-600">•</span> Admin permissions for installation</li>
+                    <li className="flex items-center gap-2"><span className="text-blue-600">•</span> Active internet connection</li>
                   </ul>
                 </div>
               </div>
             )}
-            {tab === 'reviews' && (
-              <div>
-                <h2 className="text-xl font-semibold mb-4">User Reviews</h2>
-                <div className="space-y-4">
-                  <div className="border-b pb-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="font-semibold">John D.</span>
-                      <span className="text-yellow-400">⭐⭐⭐⭐⭐</span>
+          </div>
+
+          {/* Sidebar */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Developer Card */}
+            <div className="p-6 bg-white rounded-xl border border-gray-200">
+              <h3 className="font-semibold text-gray-900 mb-4">Developer</h3>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold">
+                  {app.developer.charAt(0)}
+                </div>
+                <div>
+                  <div className="font-medium text-gray-900">{app.developer}</div>
+                  {app.verified && <div className="text-xs text-green-600">✓ Verified Developer</div>}
+                </div>
+              </div>
+              <button className="w-full py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
+                View Profile
+              </button>
+            </div>
+
+            {/* Related Apps */}
+            <div className="p-6 bg-white rounded-xl border border-gray-200">
+              <h3 className="font-semibold text-gray-900 mb-4">You might also like</h3>
+              <div className="space-y-4">
+                {relatedApps.map((relatedApp) => (
+                  <Link key={relatedApp.id} href={`/apps/${relatedApp.id}`} className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-lg -mx-2">
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-xl">
+                      {relatedApp.icon}
                     </div>
-                    <p className="text-gray-600">Great app! Really improves our team productivity.</p>
-                  </div>
-                  <div className="border-b pb-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="font-semibold">Sarah M.</span>
-                      <span className="text-yellow-400">⭐⭐⭐⭐</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-gray-900 truncate">{relatedApp.name}</div>
+                      <div className="text-xs text-gray-500">★ {relatedApp.rating}</div>
                     </div>
-                    <p className="text-gray-600">Very useful, would recommend to others.</p>
-                  </div>
-                </div>
+                  </Link>
+                ))}
               </div>
-            )}
-            {tab === 'pricing' && (
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Pricing Plans</h2>
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="border rounded-lg p-6">
-                    <h3 className="font-semibold text-lg">Free</h3>
-                    <p className="text-3xl font-bold my-4">$0</p>
-                    <ul className="text-gray-600 space-y-2">
-                      <li>✓ Basic features</li>
-                      <li>✓ Up to 5 users</li>
-                      <li>✓ Community support</li>
-                    </ul>
-                  </div>
-                  <div className="border-2 border-blue-600 rounded-lg p-6">
-                    <h3 className="font-semibold text-lg">Pro</h3>
-                    <p className="text-3xl font-bold my-4">$9.99<span className="text-sm text-gray-500">/mo</span></p>
-                    <ul className="text-gray-600 space-y-2">
-                      <li>✓ All features</li>
-                      <li>✓ Unlimited users</li>
-                      <li>✓ Priority support</li>
-                    </ul>
-                  </div>
-                </div>
+            </div>
+
+            {/* Support */}
+            <div className="p-6 bg-white rounded-xl border border-gray-200">
+              <h3 className="font-semibold text-gray-900 mb-4">Need Help?</h3>
+              <div className="space-y-3">
+                <a href="#" className="flex items-center gap-2 text-blue-600 hover:underline text-sm">
+                  📚 Documentation
+                </a>
+                <a href="#" className="flex items-center gap-2 text-blue-600 hover:underline text-sm">
+                  💬 Support Forum
+                </a>
+                <a href="#" className="flex items-center gap-2 text-blue-600 hover:underline text-sm">
+                  ✉️ Contact Developer
+                </a>
               </div>
-            )}
-            {tab === 'installation' && (
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Installation Guide</h2>
-                <ol className="list-decimal list-inside space-y-4 text-gray-600">
-                  <li>Click the Install button above</li>
-                  <li>Choose your ONES workspace</li>
-                  <li>Configure app settings</li>
-                  <li>Start using the app!</li>
-                </ol>
-                <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-                  <p className="text-sm text-gray-500">Requirements: ONES Project or ONES Wiki</p>
-                </div>
-              </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
-    </main>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-gray-300 mt-16">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">O</span>
+              </div>
+              <span className="font-bold text-white">ONES Marketplace</span>
+            </div>
+            <p className="text-sm text-gray-500">© 2024 ONES. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
   )
 }
