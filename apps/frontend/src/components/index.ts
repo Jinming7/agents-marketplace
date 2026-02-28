@@ -10,6 +10,8 @@ export { default as Avatar, AvatarGroup } from './Avatar'
 export { default as Breadcrumb } from './Breadcrumb'
 export { default as ShareButton } from './ShareButton'
 export { default as Tooltip, HelpTooltip, InfoBadge } from './Tooltip'
+export { default as Dropdown, ActionMenu, UserMenu } from './Dropdown'
+export { default as Card, CardHeader, CardContent, CardFooter, StatCardSimple, FeatureCard, InfoCard } from './Card'
 
 // Data Display
 export { default as RatingDistribution } from './RatingDistribution'
@@ -24,6 +26,7 @@ export { default as EmptyState } from './EmptyState'
 export { ErrorBoundary } from './ErrorBoundary'
 export { default as NotificationCenter } from './NotificationCenter'
 export { ToastProvider, useToast } from './Toast'
+export { default as Alert, DismissibleAlert, InlineAlert, BannerAlert } from './Alert'
 
 // Navigation
 export { default as Pagination, SimplePagination, LoadMore } from './Pagination'
