@@ -3,6 +3,14 @@
 import Link from 'next/link'
 import { useState } from 'react'
 
+interface PricingData {
+  model: 'free' | 'paid' | 'freemium' | 'enterprise'
+  tiers: any[] | null
+  trialDays: number | null
+  freeUsers?: number
+  message: string
+}
+
 interface AppCardProps {
   id: string
   name: string
@@ -13,10 +21,32 @@ interface AppCardProps {
   downloads: number
   verified?: boolean
   featured?: boolean
+  pricing?: PricingData
   onInstall?: (id: string) => void
   onWishlist?: (id: string) => void
   isInstalled?: boolean
   isWishlisted?: boolean
+}
+
+function formatPrice(pricing: PricingData | undefined): string {
+  if (!pricing) return ''
+  
+  switch (pricing.model) {
+    case 'free':
+      return 'Free'
+    case 'enterprise':
+      return 'Enterprise'
+    case 'freemium':
+      return pricing.tiers?.[0]?.monthly 
+        ? `Free - $${pricing.tiers[0].monthly}/mo`
+        : 'Freemium'
+    case 'paid':
+      return pricing.tiers?.[0]?.monthly 
+        ? `From $${pricing.tiers[0].monthly}/mo`
+        : 'Paid'
+    default:
+      return ''
+  }
 }
 
 export default function AppCard({
@@ -29,6 +59,7 @@ export default function AppCard({
   downloads,
   verified = false,
   featured = false,
+  pricing,
   onInstall,
   onWishlist,
   isInstalled = false,
@@ -110,6 +141,20 @@ export default function AppCard({
               </span>
             </div>
           </div>
+          {pricing && (
+            <div className="mt-2 flex items-center justify-between">
+              <span className={`text-sm font-medium ${
+                pricing.model === 'free' ? 'text-green-600' : 'text-gray-900'
+              }`}>
+                {formatPrice(pricing)}
+              </span>
+              {pricing.trialDays && pricing.model !== 'free' && (
+                <span className="text-xs text-gray-500">
+                  {pricing.trialDays}-day trial
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </Link>
 
