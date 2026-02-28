@@ -12,6 +12,7 @@ export { default as ShareButton } from './ShareButton'
 export { default as Tooltip, HelpTooltip, InfoBadge } from './Tooltip'
 export { default as Dropdown, ActionMenu, UserMenu } from './Dropdown'
 export { default as Card, CardHeader, CardContent, CardFooter, StatCardSimple, FeatureCard, InfoCard } from './Card'
+export { default as PricingTable } from './PricingTable'
 
 // Data Display
 export { default as RatingDistribution } from './RatingDistribution'

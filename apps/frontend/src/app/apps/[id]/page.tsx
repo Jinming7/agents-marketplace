@@ -4,6 +4,21 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { appsApi, userApi } from '@/lib/api'
+import PricingTable from '@/components/PricingTable'
+
+interface PricingTier {
+  users: string
+  monthly: number
+  yearly: number
+}
+
+interface PricingData {
+  model: 'free' | 'paid' | 'freemium' | 'enterprise'
+  tiers: PricingTier[] | null
+  trialDays: number | null
+  freeUsers?: number
+  message: string
+}
 
 interface App {
   id: string
@@ -20,7 +35,7 @@ interface App {
   developer?: string
   features?: string[]
   screenshots?: string[]
-  pricing?: { type: string; price?: number }
+  pricing?: PricingData
 }
 
 interface Review {
@@ -291,48 +306,11 @@ export default function AppDetailPage() {
               </div>
             )}
 
-            {tab === 'pricing' && (
+            {tab === 'pricing' && app.pricing && (
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Pricing Plans</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="p-6 bg-white rounded-xl border border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Free</h3>
-                    <p className="text-3xl font-bold text-gray-900 mb-4">$0<span className="text-sm font-normal text-gray-500">/month</span></p>
-                    <ul className="space-y-3 mb-6">
-                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Basic features</li>
-                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Up to 5 users</li>
-                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Community support</li>
-                      <li className="flex items-center gap-2 text-sm text-gray-400"><span>✗</span> Advanced features</li>
-                    </ul>
-                    <button className="w-full py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Get Started</button>
-                  </div>
-                  
-                  <div className="p-6 bg-white rounded-xl border-2 border-blue-600 relative">
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded-full">
-                      RECOMMENDED
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Pro</h3>
-                    <p className="text-3xl font-bold text-gray-900 mb-4">$29<span className="text-sm font-normal text-gray-500">/month</span></p>
-                    <ul className="space-y-3 mb-6">
-                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> All features</li>
-                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Up to 50 users</li>
-                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Priority support</li>
-                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Custom integrations</li>
-                    </ul>
-                    <button className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Choose Plan</button>
-                  </div>
-                  
-                  <div className="p-6 bg-white rounded-xl border border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Enterprise</h3>
-                    <p className="text-3xl font-bold text-gray-900 mb-4">Custom</p>
-                    <ul className="space-y-3 mb-6">
-                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Everything in Pro</li>
-                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Unlimited users</li>
-                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> Dedicated support</li>
-                      <li className="flex items-center gap-2 text-sm text-gray-600"><span className="text-green-500">✓</span> SLA guarantee</li>
-                    </ul>
-                    <button className="w-full py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Contact Sales</button>
-                  </div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Pricing</h2>
+                <div className="bg-white rounded-xl border p-6">
+                  <PricingTable pricing={app.pricing} appName={app.name} />
                 </div>
               </div>
             )}

@@ -56,8 +56,6 @@ const developers = [
   'CloudFirst', 'AgileDev', 'CodeCraft', 'DigitalFirst', 'TechVision',
 ]
 
-const pricingModels = ['free', 'paid', 'freemium', 'enterprise']
-
 const descriptions = [
   'Streamline your workflow with powerful automation and intuitive design.',
   'Boost team productivity with real-time collaboration features.',
@@ -71,10 +69,25 @@ const descriptions = [
   'Real-time sync across all your devices and teams.',
 ]
 
-const tags = [
-  'popular', 'new', 'featured', 'verified', 'top-rated',
-  'editor-choice', 'trending', 'essential', 'best-seller', 'recommended',
-]
+// Atlassian-style pricing tiers
+interface PricingTier {
+  users: string
+  monthly: number
+  yearly: number
+}
+
+function generatePricingTiers(basePrice: number): PricingTier[] {
+  return [
+    { users: '1 - 10', monthly: basePrice, yearly: Math.round(basePrice * 10 * 0.83) },
+    { users: '11 - 25', monthly: Math.round(basePrice * 1.5), yearly: Math.round(basePrice * 1.5 * 10 * 0.83) },
+    { users: '26 - 50', monthly: Math.round(basePrice * 2.5), yearly: Math.round(basePrice * 2.5 * 10 * 0.83) },
+    { users: '51 - 100', monthly: Math.round(basePrice * 4), yearly: Math.round(basePrice * 4 * 10 * 0.83) },
+    { users: '101 - 250', monthly: Math.round(basePrice * 6), yearly: Math.round(basePrice * 6 * 10 * 0.83) },
+    { users: '251 - 500', monthly: Math.round(basePrice * 8), yearly: Math.round(basePrice * 8 * 10 * 0.83) },
+    { users: '501 - 1000', monthly: Math.round(basePrice * 12), yearly: Math.round(basePrice * 12 * 10 * 0.83) },
+    { users: '1000+', monthly: 0, yearly: 0 }, // Contact sales
+  ]
+}
 
 function randomElement<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
@@ -84,19 +97,47 @@ function randomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-function generatePrice(model: string): { type: string; price?: number; yearly?: number } | null {
+function generatePricing(model: string, basePrice: number) {
+  const tiers = generatePricingTiers(basePrice)
+  const trialDays = 30
+  
   switch (model) {
     case 'free':
-      return { type: 'free' }
+      return {
+        model: 'free' as const,
+        tiers: null,
+        trialDays: null,
+        message: 'Free forever. No credit card required.',
+      }
     case 'paid':
-      const price = randomInt(3, 25)
-      return { type: 'paid', price, yearly: Math.round(price * 0.8) }
+      return {
+        model: 'paid' as const,
+        tiers,
+        trialDays,
+        message: 'Per-user pricing. Annual billing saves 17%.',
+      }
     case 'freemium':
-      return { type: 'freemium', price: randomInt(5, 15) }
+      return {
+        model: 'freemium' as const,
+        tiers,
+        trialDays,
+        freeUsers: 5,
+        message: 'Free for up to 5 users. Upgrade for more.',
+      }
     case 'enterprise':
-      return { type: 'enterprise' }
+      return {
+        model: 'enterprise' as const,
+        tiers: null,
+        trialDays,
+        message: 'Contact sales for custom enterprise pricing.',
+      }
     default:
-      return null
+      return {
+        model: 'paid' as const,
+        tiers,
+        trialDays,
+        message: 'Per-user pricing. Annual billing saves 17%.',
+      }
   }
 }
 
@@ -154,8 +195,8 @@ export function generateMockApps(count: number = 100) {
   for (let i = 0; i < count; i++) {
     const name = appNames[i % appNames.length] + (i >= appNames.length ? ` ${Math.floor(i / appNames.length) + 1}` : '')
     const category = categories[Math.floor(i / (count / categories.length))] || randomElement(categories)
-    const pricingModel = randomElement(pricingModels)
-    const rating = (3 + Math.random() * 2).toFixed(1)
+    const pricingModel = randomElement(['free', 'paid', 'paid', 'freemium', 'paid', 'enterprise'])
+    const basePrice = randomInt(3, 15)
     const reviews = generateReviews()
     const avgRating = (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
 
@@ -170,11 +211,10 @@ export function generateMockApps(count: number = 100) {
       downloads: randomInt(1000, 500000),
       verified: Math.random() > 0.3,
       featured: i < 10,
-      pricing: generatePrice(pricingModel),
+      pricing: generatePricing(pricingModel, basePrice),
       screenshots: generateScreenshots(name),
       versionHistory: generateVersionHistory(),
       reviews,
-      tags: Math.random() > 0.7 ? [randomElement(tags)] : [],
       createdAt: new Date(Date.now() - randomInt(30, 730) * 24 * 60 * 60 * 1000).toISOString(),
       updatedAt: new Date(Date.now() - randomInt(1, 30) * 24 * 60 * 60 * 1000).toISOString(),
     })
