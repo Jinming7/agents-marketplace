@@ -43,33 +43,7 @@ export default function HomePage() {
   const featuredApps = mockApps.filter(app => app.featured)
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">O</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900">ONES Marketplace</span>
-            </Link>
-            <nav className="hidden md:flex gap-6">
-              <Link href="/" className="text-blue-600 font-medium">Marketplace</Link>
-              <Link href="/my-apps" className="text-gray-600 hover:text-gray-900">My Apps</Link>
-              <Link href="/wishlist" className="text-gray-600 hover:text-gray-900">Wishlist</Link>
-              <Link href="/pricing" className="text-gray-600 hover:text-gray-900">Pricing</Link>
-              <Link href="/developers" className="text-gray-600 hover:text-gray-900">Developers</Link>
-              <Link href="/support" className="text-gray-600 hover:text-gray-900">Support</Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="text-gray-600 hover:text-gray-900">Login</Link>
-            <Link href="/register" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Sign Up</Link>
-          </div>
-        </div>
-      </header>
-
+    <div className="bg-gray-50">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white py-20 overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
@@ -254,71 +228,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300">
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h3 className="text-white font-semibold mb-4">Product</h3>
-              <ul className="space-y-2">
-                <li><Link href="/features" className="hover:text-white">Features</Link></li>
-                <li><Link href="/pricing" className="hover:text-white">Pricing</Link></li>
-                <li><Link href="/integrations" className="hover:text-white">Integrations</Link></li>
-                <li><Link href="/api" className="hover:text-white">API</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-white font-semibold mb-4">Resources</h3>
-              <ul className="space-y-2">
-                <li><Link href="/docs" className="hover:text-white">Documentation</Link></li>
-                <li><Link href="/blog" className="hover:text-white">Blog</Link></li>
-                <li><Link href="/community" className="hover:text-white">Community</Link></li>
-                <li><Link href="/support" className="hover:text-white">Support</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-white font-semibold mb-4">Company</h3>
-              <ul className="space-y-2">
-                <li><Link href="/about" className="hover:text-white">About</Link></li>
-                <li><Link href="/careers" className="hover:text-white">Careers</Link></li>
-                <li><Link href="/press" className="hover:text-white">Press</Link></li>
-                <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-white font-semibold mb-4">Legal</h3>
-              <ul className="space-y-2">
-                <li><Link href="/privacy" className="hover:text-white">Privacy</Link></li>
-                <li><Link href="/terms" className="hover:text-white">Terms</Link></li>
-                <li><Link href="/security" className="hover:text-white">Security</Link></li>
-                <li><Link href="/cookies" className="hover:text-white">Cookies</Link></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">O</span>
-              </div>
-              <span className="font-bold text-white">ONES Marketplace</span>
-            </div>
-            <p className="text-sm text-gray-500">© 2024 ONES. All rights reserved.</p>
-            <div className="flex items-center gap-4">
-              <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700">
-                <span>𝕏</span>
-              </a>
-              <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700">
-                <span>in</span>
-              </a>
-              <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700">
-                <span>▶</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </main>
+    </div>
   )
 }
