@@ -57,7 +57,9 @@ export default function HomePage() {
             <nav className="hidden md:flex gap-6">
               <Link href="/" className="text-blue-600 font-medium">Marketplace</Link>
               <Link href="/my-apps" className="text-gray-600 hover:text-gray-900">My Apps</Link>
-              <Link href="/docs" className="text-gray-600 hover:text-gray-900">Docs</Link>
+              <Link href="/wishlist" className="text-gray-600 hover:text-gray-900">Wishlist</Link>
+              <Link href="/pricing" className="text-gray-600 hover:text-gray-900">Pricing</Link>
+              <Link href="/developers" className="text-gray-600 hover:text-gray-900">Developers</Link>
               <Link href="/support" className="text-gray-600 hover:text-gray-900">Support</Link>
             </nav>
           </div>
