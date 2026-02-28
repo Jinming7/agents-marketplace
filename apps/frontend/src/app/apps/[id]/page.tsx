@@ -1,9 +1,9 @@
 'use client'
 
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { appsApi } from '@/lib/api'
+import { appsApi, userApi } from '@/lib/api'
 
 interface App {
   id: string
@@ -34,30 +34,73 @@ interface Review {
 
 export default function AppDetailPage() {
   const params = useParams()
+  const router = useRouter()
   const [app, setApp] = useState<App | null>(null)
   const [reviews, setReviews] = useState<Review[]>([])
   const [relatedApps, setRelatedApps] = useState<App[]>([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState('overview')
   const [isInstalling, setIsInstalling] = useState(false)
+  const [isInstalled, setIsInstalled] = useState(false)
+  const [isWishlisted, setIsWishlisted] = useState(false)
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true)
-      const [appRes, reviewsRes, allAppsRes] = await Promise.all([
+      const [appRes, reviewsRes, allAppsRes, installRes, wishlistRes] = await Promise.all([
         appsApi.get(params.id as string),
         appsApi.getReviews(params.id as string),
-        appsApi.list()
+        appsApi.list(),
+        userApi.getInstallations(),
+        userApi.getWishlist()
       ])
       if (appRes.success && appRes.data) setApp(appRes.data)
       if (reviewsRes.success && reviewsRes.data) setReviews(reviewsRes.data)
       if (allAppsRes.success && allAppsRes.data && appRes.data) {
         setRelatedApps(allAppsRes.data.filter((a: App) => a.id !== params.id && a.category === appRes.data?.category).slice(0, 3))
       }
+      if (installRes.success && installRes.data) {
+        setIsInstalled(installRes.data.some((i: any) => i.appId === params.id))
+      }
+      if (wishlistRes.success && wishlistRes.data) {
+        setIsWishlisted(wishlistRes.data.includes(params.id))
+      }
       setLoading(false)
     }
     if (params.id) fetchData()
   }, [params.id])
+
+  const handleInstall = async () => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      router.push('/login')
+      return
+    }
+    setIsInstalling(true)
+    if (isInstalled) {
+      await userApi.uninstallApp(app!.id)
+      setIsInstalled(false)
+    } else {
+      await userApi.installApp(app!.id)
+      setIsInstalled(true)
+    }
+    setIsInstalling(false)
+  }
+
+  const handleWishlist = async () => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      router.push('/login')
+      return
+    }
+    if (isWishlisted) {
+      await userApi.removeFromWishlist(app!.id)
+      setIsWishlisted(false)
+    } else {
+      await userApi.addToWishlist(app!.id)
+      setIsWishlisted(true)
+    }
+  }
   
   if (loading) {
     return (
@@ -77,11 +120,6 @@ export default function AppDetailPage() {
         </div>
       </div>
     )
-  }
-
-  const handleInstall = () => {
-    setIsInstalling(true)
-    setTimeout(() => setIsInstalling(false), 2000)
   }
 
   return (
@@ -151,12 +189,21 @@ export default function AppDetailPage() {
               <button
                 onClick={handleInstall}
                 disabled={isInstalling}
-                className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50"
+                className={`px-8 py-3 rounded-lg font-medium disabled:opacity-50 ${
+                  isInstalled 
+                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' 
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
               >
-                {isInstalling ? 'Installing...' : 'Install'}
+                {isInstalling ? 'Processing...' : isInstalled ? 'Uninstall' : 'Install'}
               </button>
-              <button className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50">
-                Try Demo
+              <button 
+                onClick={handleWishlist}
+                className={`px-6 py-3 border rounded-lg hover:bg-gray-50 ${
+                  isWishlisted ? 'border-pink-300 text-pink-600' : 'border-gray-300'
+                }`}
+              >
+                {isWishlisted ? '❤️ Saved' : '🤍 Save'}
               </button>
             </div>
           </div>

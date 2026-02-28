@@ -1,10 +1,41 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+
+interface User {
+  id: string
+  name: string
+  email: string
+  avatar?: string
+}
 
 export default function Header() {
+  const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+
+  useEffect(() => {
+    // Check if user is logged in
+    const token = localStorage.getItem('token')
+    if (token) {
+      // Fetch user info
+      fetch('/api/auth/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => data && setUser(data))
+        .catch(() => {})
+    }
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    setUser(null)
+    router.push('/')
+  }
 
   return (
     <header className="bg-white border-b sticky top-0 z-50">
@@ -28,12 +59,44 @@ export default function Header() {
         </div>
         
         <div className="flex items-center gap-4">
-          <Link href="/login" className="text-gray-600 hover:text-gray-900 hidden sm:block">Login</Link>
-          <Link href="/register" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            Sign Up
-          </Link>
+          {user ? (
+            <div className="relative">
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100"
+              >
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-medium">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <span className="hidden sm:block text-gray-700">{user.name}</span>
+              </button>
+              
+              {userMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-2">
+                  <div className="px-4 py-2 border-b">
+                    <div className="font-medium text-gray-900">{user.name}</div>
+                    <div className="text-sm text-gray-500">{user.email}</div>
+                  </div>
+                  <Link href="/my-apps" className="block px-4 py-2 text-gray-700 hover:bg-gray-50">My Apps</Link>
+                  <Link href="/wishlist" className="block px-4 py-2 text-gray-700 hover:bg-gray-50">Wishlist</Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-50"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <Link href="/login" className="text-gray-600 hover:text-gray-900 hidden sm:block">Login</Link>
+              <Link href="/register" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                Sign Up
+              </Link>
+            </>
+          )}
           
-          {/* Mobile menu button */}
           <button 
             className="md:hidden p-2"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -45,7 +108,6 @@ export default function Header() {
         </div>
       </div>
       
-      {/* Mobile menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t bg-white">
           <nav className="px-4 py-4 space-y-2">
@@ -55,7 +117,11 @@ export default function Header() {
             <Link href="/pricing" className="block py-2 text-gray-600">Pricing</Link>
             <Link href="/developers" className="block py-2 text-gray-600">Developers</Link>
             <Link href="/support" className="block py-2 text-gray-600">Support</Link>
-            <Link href="/login" className="block py-2 text-gray-600">Login</Link>
+            {user ? (
+              <button onClick={handleLogout} className="block py-2 text-red-600">Sign Out</button>
+            ) : (
+              <Link href="/login" className="block py-2 text-gray-600">Login</Link>
+            )}
           </nav>
         </div>
       )}
