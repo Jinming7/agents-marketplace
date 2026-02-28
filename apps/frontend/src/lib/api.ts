@@ -26,7 +26,7 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<ApiR
 
 // Apps API
 export const appsApi = {
-  list: (params?: { category?: string; search?: string; sort?: string; page?: number }) => {
+  list: (params?: { category?: string; search?: string; sort?: string; page?: number; limit?: number }) => {
     const query = new URLSearchParams(params as Record<string, string>).toString()
     return request<any[]>(`/plugins${query ? `?${query}` : ''}`)
   },
