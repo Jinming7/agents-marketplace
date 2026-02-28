@@ -2,34 +2,69 @@
 
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { appsApi } from '@/lib/api'
 
-const apps = [
-  { id: '1', name: 'Project Management Plus', description: 'Add Gantt charts, Kanban boards to your ONES projects', longDescription: 'Project Management Plus extends ONES with powerful project visualization tools including Gantt charts, Kanban boards, and advanced timeline views. Perfect for teams that need flexible project planning and execution.', category: 'Project Management', installs: 12500, rating: 4.8, reviews: 156, icon: '📊', verified: true, developer: 'ONES Official', features: ['Gantt Charts', 'Kanban Boards', 'Timeline View', 'Resource Management'] },
-  { id: '2', name: 'Workflow Automator', description: 'Create custom automation rules to boost team efficiency', longDescription: 'Workflow Automator empowers teams to create powerful automation rules without coding. Automate repetitive tasks, set up triggers and actions, and streamline your workflow.', category: 'Automation', installs: 8900, rating: 4.6, reviews: 89, icon: '⚡', verified: true, developer: 'ONES Official', features: ['No-Code Automation', 'Custom Triggers', 'Action Templates', 'Real-time Execution'] },
-  { id: '3', name: 'Git Integration', description: 'Connect GitHub, GitLab for code-project sync', longDescription: 'Git Integration seamlessly connects your code repositories with ONES projects. Link commits to tasks, track pull requests, and maintain full visibility of your development workflow.', category: 'Development Tools', installs: 6700, rating: 4.9, reviews: 67, icon: '🔗', verified: true, developer: 'DevTools Inc', features: ['GitHub Integration', 'GitLab Support', 'Commit Linking', 'PR Tracking'] },
-  { id: '4', name: 'Team Collaboration', description: 'Real-time collaboration, comments, @mentions', longDescription: 'Team Collaboration enhances team communication with real-time updates, threaded comments, and @mentions. Keep everyone in sync and never miss important discussions.', category: 'Collaboration', installs: 15200, rating: 4.7, reviews: 124, icon: '👥', verified: false, developer: 'Collab Labs', features: ['Real-time Updates', 'Threaded Comments', '@Mentions', 'Activity Feed'] },
-  { id: '5', name: 'Data Reports', description: 'Visual reports, custom dashboards, data export', longDescription: 'Data Reports provides powerful visualization and reporting capabilities. Create custom dashboards, generate insights, and export data in multiple formats.', category: 'Reports', installs: 9800, rating: 4.5, reviews: 78, icon: '📈', verified: true, developer: 'Analytics Pro', features: ['Custom Dashboards', 'Visual Reports', 'Data Export', 'Scheduled Reports'] },
-  { id: '6', name: 'Security Audit', description: 'Operation logs, permission audit, security alerts', longDescription: 'Security Audit helps you maintain compliance and security. Track all operations, audit permissions, and receive alerts for suspicious activities.', category: 'Security', installs: 4500, rating: 4.8, reviews: 56, icon: '🔒', verified: true, developer: 'SecureTech', features: ['Operation Logs', 'Permission Audit', 'Security Alerts', 'Compliance Reports'] },
-  { id: '7', name: 'AI Assistant', description: 'AI-powered intelligent assistant for smart suggestions', longDescription: 'AI Assistant leverages artificial intelligence to provide smart suggestions, automate task creation, and help teams work more efficiently.', category: 'Automation', installs: 15600, rating: 4.9, reviews: 234, icon: '🤖', verified: true, developer: 'ONES Official', features: ['Smart Suggestions', 'Task Automation', 'Natural Language', 'Learning AI'] },
-  { id: '8', name: 'Time Tracker', description: 'Track time spent on tasks and projects', longDescription: 'Time Tracker helps teams understand where their time goes. Track time on tasks, generate timesheets, and improve productivity.', category: 'Project Management', installs: 7200, rating: 4.4, reviews: 45, icon: '⏱️', verified: false, developer: 'TimeWise', features: ['Time Tracking', 'Timesheets', 'Reports', 'Integrations'] },
-  { id: '9', name: 'Slack Integration', description: 'Push ONES notifications to Slack channels', longDescription: 'Slack Integration keeps your team informed by pushing ONES notifications directly to Slack channels. Stay updated without leaving Slack.', category: 'Collaboration', installs: 8800, rating: 4.6, reviews: 78, icon: '💬', verified: true, developer: 'ConnectLabs', features: ['Slack Notifications', 'Custom Channels', 'Message Templates', 'Two-way Sync'] },
-]
+interface App {
+  id: string
+  name: string
+  description: string
+  shortDescription?: string
+  category: string
+  downloads: number
+  rating: number
+  reviews?: number
+  icon: string
+  verified?: boolean
+  developer?: string
+  features?: string[]
+  screenshots?: string[]
+  pricing?: { type: string; price?: number }
+}
 
-const reviewData = [
-  { id: 1, author: 'John D.', avatar: '👨‍💼', rating: 5, date: '2024-02-20', comment: 'Great app! Really improves our team productivity. The Gantt charts are especially useful for project planning.' },
-  { id: 2, author: 'Sarah M.', avatar: '👩‍💻', rating: 4, date: '2024-02-18', comment: 'Very useful, would recommend to others. Minor UI issues but overall solid.' },
-  { id: 3, author: 'Mike R.', avatar: '👨‍🔬', rating: 5, date: '2024-02-15', comment: 'Exactly what we needed. The integration with ONES is seamless.' },
-  { id: 4, author: 'Emily K.', avatar: '👩‍🎨', rating: 5, date: '2024-02-12', comment: 'Outstanding support team. They helped us set everything up quickly.' },
-]
+interface Review {
+  id: number
+  author: string
+  avatar: string
+  rating: number
+  date: string
+  content: string
+}
 
 export default function AppDetailPage() {
   const params = useParams()
+  const [app, setApp] = useState<App | null>(null)
+  const [reviews, setReviews] = useState<Review[]>([])
+  const [relatedApps, setRelatedApps] = useState<App[]>([])
+  const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState('overview')
   const [isInstalling, setIsInstalling] = useState(false)
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true)
+      const [appRes, reviewsRes, allAppsRes] = await Promise.all([
+        appsApi.get(params.id as string),
+        appsApi.getReviews(params.id as string),
+        appsApi.list()
+      ])
+      if (appRes.success && appRes.data) setApp(appRes.data)
+      if (reviewsRes.success && reviewsRes.data) setReviews(reviewsRes.data)
+      if (allAppsRes.success && allAppsRes.data && appRes.data) {
+        setRelatedApps(allAppsRes.data.filter((a: App) => a.id !== params.id && a.category === appRes.data?.category).slice(0, 3))
+      }
+      setLoading(false)
+    }
+    if (params.id) fetchData()
+  }, [params.id])
   
-  const app = apps.find(a => a.id === params.id)
-  const relatedApps = apps.filter(a => a.id !== params.id && a.category === app?.category).slice(0, 3)
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
   
   if (!app) {
     return (

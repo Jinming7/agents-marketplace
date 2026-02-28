@@ -1,46 +1,70 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { appsApi, categoriesApi } from '@/lib/api'
 
-// Mock data for demo
-const mockApps = [
-  { id: '1', name: 'Project Management Plus', description: 'Add Gantt charts, Kanban boards to your ONES projects', category: 'Project Management', installs: 12500, rating: 4.8, icon: '📊', verified: true, featured: true },
-  { id: '2', name: 'Workflow Automator', description: 'Create custom automation rules to boost team efficiency', category: 'Automation', installs: 8900, rating: 4.6, icon: '⚡', verified: true, featured: true },
-  { id: '3', name: 'Git Integration', description: 'Connect GitHub, GitLab for code-project sync', category: 'Development Tools', installs: 6700, rating: 4.9, icon: '🔗', verified: true, featured: false },
-  { id: '4', name: 'Team Collaboration', description: 'Real-time collaboration, comments, @mentions', category: 'Collaboration', installs: 15200, rating: 4.7, icon: '👥', verified: false, featured: true },
-  { id: '5', name: 'Data Reports', description: 'Visual reports, custom dashboards, data export', category: 'Reports', installs: 9800, rating: 4.5, icon: '📈', verified: true, featured: false },
-  { id: '6', name: 'Security Audit', description: 'Operation logs, permission audit, security alerts', category: 'Security', installs: 4500, rating: 4.8, icon: '🔒', verified: true, featured: false },
-  { id: '7', name: 'AI Assistant', description: 'AI-powered intelligent assistant for smart suggestions', category: 'Automation', installs: 15600, rating: 4.9, icon: '🤖', verified: true, featured: true },
-  { id: '8', name: 'Time Tracker', description: 'Track time spent on tasks and projects', category: 'Project Management', installs: 7200, rating: 4.4, icon: '⏱️', verified: false, featured: false },
-  { id: '9', name: 'Slack Integration', description: 'Push ONES notifications to Slack channels', category: 'Collaboration', installs: 8800, rating: 4.6, icon: '💬', verified: true, featured: false },
-]
+interface App {
+  id: string
+  name: string
+  description: string
+  category: string
+  downloads: number
+  rating: number
+  icon: string
+  verified?: boolean
+  featured?: boolean
+}
 
-const categories = [
-  { id: 'all', name: 'All', icon: '🌐', count: 156, color: 'from-gray-500 to-gray-600' },
-  { id: 'project', name: 'Project Management', icon: '📁', count: 45, color: 'from-blue-500 to-blue-600' },
-  { id: 'automation', name: 'Automation', icon: '⚡', count: 23, color: 'from-orange-500 to-amber-500' },
-  { id: 'development', name: 'Development Tools', icon: '🔧', count: 38, color: 'from-green-500 to-emerald-500' },
-  { id: 'collaboration', name: 'Collaboration', icon: '🤝', count: 28, color: 'from-purple-500 to-pink-500' },
-  { id: 'reports', name: 'Reports', icon: '📊', count: 18, color: 'from-indigo-500 to-purple-500' },
-  { id: 'security', name: 'Security', icon: '🛡️', count: 15, color: 'from-slate-600 to-slate-700' },
+interface Category {
+  id: string
+  name: string
+  icon: string
+  count: number
+}
+
+const defaultCategories: Category[] = [
+  { id: 'all', name: 'All', icon: '🌐', count: 0 },
+  { id: 'project', name: 'Project Management', icon: '📁', count: 0 },
+  { id: 'automation', name: 'Automation', icon: '⚡', count: 0 },
+  { id: 'development', name: 'Development Tools', icon: '🔧', count: 0 },
+  { id: 'collaboration', name: 'Collaboration', icon: '🤝', count: 0 },
+  { id: 'reports', name: 'Reports', icon: '📊', count: 0 },
+  { id: 'security', name: 'Security', icon: '🛡️', count: 0 },
 ]
 
 export default function HomePage() {
+  const [apps, setApps] = useState<App[]>([])
+  const [categories, setCategories] = useState<Category[]>(defaultCategories)
+  const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
-  const [sortBy, setSortBy] = useState('installs')
+  const [sortBy, setSortBy] = useState('downloads')
 
-  const filteredApps = mockApps
-    .filter(app => selectedCategory === 'all' || app.category.toLowerCase().includes(selectedCategory))
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true)
+      const [appsRes, catRes] = await Promise.all([
+        appsApi.list(),
+        categoriesApi.list()
+      ])
+      if (appsRes.success && appsRes.data) setApps(appsRes.data)
+      if (catRes.success && catRes.data) setCategories(catRes.data)
+      setLoading(false)
+    }
+    fetchData()
+  }, [])
+
+  const filteredApps = apps
+    .filter(app => selectedCategory === 'all' || app.category.toLowerCase().includes(selectedCategory.toLowerCase()))
     .filter(app => searchQuery === '' || app.name.toLowerCase().includes(searchQuery.toLowerCase()) || app.description.toLowerCase().includes(searchQuery.toLowerCase()))
     .sort((a, b) => {
       if (sortBy === 'rating') return b.rating - a.rating
       if (sortBy === 'name') return a.name.localeCompare(b.name)
-      return b.installs - a.installs
+      return b.downloads - a.downloads
     })
 
-  const featuredApps = mockApps.filter(app => app.featured)
+  const featuredApps = apps.filter(app => app.featured)
 
   return (
     <div className="bg-gray-50">

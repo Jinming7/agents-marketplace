@@ -1,12 +1,33 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { authApi } from '@/lib/api'
 
 export default function RegisterPage() {
+  const router = useRouter()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    
+    const res = await authApi.register(name, email, password)
+    
+    if (res.success && res.data) {
+      localStorage.setItem('token', res.data.token)
+      router.push('/my-apps')
+    } else {
+      setError(res.error || 'Registration failed')
+    }
+    setLoading(false)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
@@ -17,7 +38,10 @@ export default function RegisterPage() {
         </div>
         
         <div className="bg-white rounded-xl border p-8">
-          <form className="space-y-6">
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">{error}</div>
+          )}
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
               <input
@@ -26,6 +50,7 @@ export default function RegisterPage() {
                 onChange={(e) => setName(e.target.value)}
                 className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 placeholder="Your name"
+                required
               />
             </div>
             <div>
@@ -36,6 +61,7 @@ export default function RegisterPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 placeholder="you@example.com"
+                required
               />
             </div>
             <div>
@@ -46,10 +72,15 @@ export default function RegisterPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 placeholder="••••••••"
+                required
               />
             </div>
-            <button type="submit" className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
-              Create Account
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50"
+            >
+              {loading ? 'Creating account...' : 'Create Account'}
             </button>
           </form>
           
