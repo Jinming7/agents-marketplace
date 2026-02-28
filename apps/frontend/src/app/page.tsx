@@ -4,61 +4,61 @@ import Link from 'next/link'
 const mockApps = [
   {
     id: '1',
-    name: '项目管理增强',
-    description: '为 ONES 项目添加甘特图、看板视图等高级功能',
-    category: '项目管理',
+    name: 'Project Management Plus',
+    description: 'Add Gantt charts, Kanban boards to your ONES projects',
+    category: 'Project Management',
     installs: 12500,
     rating: 4.8,
     icon: '📊',
   },
   {
     id: '2',
-    name: '自动化工作流',
-    description: '创建自定义自动化规则，提升团队效率',
-    category: '自动化',
+    name: 'Workflow Automator',
+    description: 'Create custom automation rules to boost team efficiency',
+    category: 'Automation',
     installs: 8900,
     rating: 4.6,
     icon: '⚡',
   },
   {
     id: '3',
-    name: '代码仓库集成',
-    description: '连接 GitHub、GitLab，实现代码与项目联动',
-    category: '开发工具',
+    name: 'Git Integration',
+    description: 'Connect GitHub, GitLab for code-project sync',
+    category: 'Development Tools',
     installs: 6700,
     rating: 4.9,
     icon: '🔗',
   },
   {
     id: '4',
-    name: '团队协作增强',
-    description: '实时协作、评论、@提及等团队沟通功能',
-    category: '协作',
+    name: 'Team Collaboration',
+    description: 'Real-time collaboration, comments, @mentions',
+    category: 'Collaboration',
     installs: 15200,
     rating: 4.7,
     icon: '👥',
   },
   {
     id: '5',
-    name: '数据报表',
-    description: '可视化报表、自定义仪表盘、数据导出',
-    category: '报表',
+    name: 'Data Reports',
+    description: 'Visual reports, custom dashboards, data export',
+    category: 'Reports',
     installs: 9800,
     rating: 4.5,
     icon: '📈',
   },
   {
     id: '6',
-    name: '安全审计',
-    description: '操作日志、权限审计、安全告警',
-    category: '安全',
+    name: 'Security Audit',
+    description: 'Operation logs, permission audit, security alerts',
+    category: 'Security',
     installs: 4500,
     rating: 4.8,
     icon: '🔒',
   },
 ]
 
-const categories = ['全部', '项目管理', '自动化', '开发工具', '协作', '报表', '安全']
+const categories = ['All', 'Project Management', 'Automation', 'Development Tools', 'Collaboration', 'Reports', 'Security']
 
 export default function HomePage() {
   return (
@@ -84,13 +84,13 @@ export default function HomePage() {
               href="/login"
               className="px-4 py-2 text-gray-600 hover:text-ones-primary"
             >
-              登录
+              Login
             </Link>
             <Link
               href="/register"
               className="px-4 py-2 bg-ones-primary text-white rounded-lg hover:bg-blue-600"
             >
-              注册
+              Sign Up
             </Link>
           </div>
         </div>
@@ -99,19 +99,19 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl font-bold mb-4">ONES 应用商店</h1>
+          <h1 className="text-4xl font-bold mb-4">ONES Marketplace</h1>
           <p className="text-xl text-blue-100 mb-8">
-            发现、安装和管理企业级应用，扩展您的 ONES 平台能力
+            Discover, install and manage enterprise apps for your ONES platform
           </p>
           <div className="max-w-2xl mx-auto">
             <div className="relative">
               <input
                 type="text"
-                placeholder="搜索应用..."
+                placeholder="Search apps..."
                 className="w-full px-6 py-4 rounded-full text-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-300"
               />
               <button className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-ones-primary text-white rounded-full hover:bg-blue-600">
-                搜索
+                Search
               </button>
             </div>
           </div>
@@ -123,13 +123,13 @@ export default function HomePage() {
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar - Categories */}
           <aside className="w-full md:w-64 shrink-0">
-            <h2 className="font-semibold text-lg mb-4">分类</h2>
+            <h2 className="font-semibold text-lg mb-4">Categories</h2>
             <div className="space-y-2">
               {categories.map((category) => (
                 <button
                   key={category}
                   className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
-                    category === '全部'
+                    category === 'All'
                       ? 'bg-ones-primary text-white'
                       : 'hover:bg-gray-100'
                   }`}
@@ -143,11 +143,11 @@ export default function HomePage() {
           {/* App Grid */}
           <div className="flex-1">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="font-semibold text-lg">热门应用</h2>
+              <h2 className="font-semibold text-lg">Popular Apps</h2>
               <select className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-ones-primary">
-                <option value="installs">按安装量</option>
-                <option value="rating">按评分</option>
-                <option value="name">按名称</option>
+                <option value="installs">By Installs</option>
+                <option value="rating">By Rating</option>
+                <option value="name">By Name</option>
               </select>
             </div>
 
