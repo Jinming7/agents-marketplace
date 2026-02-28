@@ -3,17 +3,44 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 250, 250, 250;
-  --background-end-rgb: 255, 255, 255;
+  --primary: #0052CC;
+  --primary-dark: #0747A6;
+  --primary-light: #4C9AFF;
+  --accent: #FF5630;
+  --accent-green: #36B37E;
+  --accent-yellow: #FFAB00;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F4F5F7;
+  --text-primary: #172B4D;
+  --text-secondary: #6B778C;
+  --border: #DFE1E6;
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+@layer base {
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-[#0052CC] text-white rounded font-medium hover:bg-[#0747A6] transition-colors;
+  }
+  .btn-secondary {
+    @apply px-4 py-2 bg-white text-[#0052CC] border border-[#0052CC] rounded font-medium hover:bg-blue-50 transition-colors;
+  }
+  .card {
+    @apply bg-white rounded-lg border border-[#DFE1E6] shadow-sm hover:shadow-md transition-shadow;
+  }
+  .badge-verified {
+    @apply px-2 py-1 bg-[#E3FCEF] text-[#36B37E] text-xs rounded font-medium;
+  }
+  .badge-featured {
+    @apply px-2 py-1 bg-[#FFF0B3] text-[#FF8B00] text-xs rounded font-medium;
+  }
+  .input {
+    @apply w-full px-4 py-3 border border-[#DFE1E6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C9AFF] focus:border-[#0052CC];
+  }
 }
