@@ -1,72 +1,60 @@
 import { Router } from 'express'
-import jwt from 'jsonwebtoken'
-import { config } from '../lib/config.js'
 
 export const userRouter = Router()
 
-// Auth middleware
-const authMiddleware = (req: any, res: any, next: any) => {
+// Mock data
+const installations: any[] = []
+const wishlist: any[] = []
+
+// GET /api/user/profile
+userRouter.get('/profile', (req, res) => {
   const authHeader = req.headers.authorization
   if (!authHeader?.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
-
-  const token = authHeader.slice(7)
-  try {
-    const payload = jwt.verify(token, config.jwtSecret) as { email: string }
-    req.user = payload
-    next()
-  } catch {
-    return res.status(401).json({ error: 'Invalid token' })
-  }
-}
-
-// Mock installations store
-const installations: Map<string, Set<string>> = new Map()
+  
+  res.json({ id: '1', name: 'Demo User', email: 'demo@example.com', avatar: null })
+})
 
 // GET /api/user/installations
-userRouter.get('/installations', authMiddleware, (req: any, res) => {
-  const userApps = installations.get(req.user.email) || new Set()
-  res.json({ apps: Array.from(userApps), total: userApps.size })
+userRouter.get('/installations', (req, res) => {
+  res.json(installations)
 })
 
 // POST /api/user/installations
-userRouter.post('/installations', authMiddleware, (req: any, res) => {
+userRouter.post('/installations', (req, res) => {
   const { appId } = req.body
-  if (!appId) {
-    return res.status(400).json({ error: 'appId is required' })
+  const existing = installations.find(i => i.appId === appId)
+  if (!existing) {
+    installations.push({ appId, installedAt: new Date().toISOString() })
   }
-
-  const userApps = installations.get(req.user.email) || new Set()
-  userApps.add(appId)
-  installations.set(req.user.email, userApps)
-
-  res.json({ success: true, message: 'App installed successfully' })
+  res.json({ success: true })
 })
 
 // DELETE /api/user/installations/:appId
-userRouter.delete('/installations/:appId', authMiddleware, (req: any, res) => {
-  const { appId } = req.params
-  const userApps = installations.get(req.user.email)
-
-  if (!userApps || !userApps.has(appId)) {
-    return res.status(404).json({ error: 'App not installed' })
-  }
-
-  userApps.delete(appId)
-  res.json({ success: true, message: 'App uninstalled successfully' })
+userRouter.delete('/installations/:appId', (req, res) => {
+  const index = installations.findIndex(i => i.appId === req.params.appId)
+  if (index > -1) installations.splice(index, 1)
+  res.json({ success: true })
 })
 
-// GET /api/user/profile
-userRouter.get('/profile', authMiddleware, (req: any, res) => {
-  res.json({
-    email: req.user.email,
-    name: req.user.email.split('@')[0],
-    notifications: true,
-  })
+// GET /api/user/wishlist
+userRouter.get('/wishlist', (req, res) => {
+  res.json(wishlist)
 })
 
-// PUT /api/user/profile
-userRouter.put('/profile', authMiddleware, (req: any, res) => {
-  res.json({ success: true, message: 'Profile updated successfully' })
+// POST /api/user/wishlist
+userRouter.post('/wishlist', (req, res) => {
+  const { appId } = req.body
+  if (!wishlist.includes(appId)) wishlist.push(appId)
+  res.json({ success: true })
 })
+
+// DELETE /api/user/wishlist/:appId
+userRouter.delete('/wishlist/:appId', (req, res) => {
+  const index = wishlist.indexOf(req.params.appId)
+  if (index > -1) wishlist.splice(index, 1)
+  res.json({ success: true })
+})
+
+export default userRouter

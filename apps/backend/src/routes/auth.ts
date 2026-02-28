@@ -1,52 +1,65 @@
 import { Router } from 'express'
-import jwt from 'jsonwebtoken'
-import { config } from '../lib/config.js'
 
 export const authRouter = Router()
 
-// Mock user store (replace with database in production)
-const users: Map<string, { email: string; password: string; name: string }> = new Map()
+// Mock user database
+const users: any[] = [
+  { id: '1', name: 'Demo User', email: 'demo@example.com', password: 'demo123', avatar: null }
+]
 
 // POST /api/auth/register
 authRouter.post('/register', (req, res) => {
-  const { email, password, name } = req.body
-
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required' })
+  const { name, email, password } = req.body
+  
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: 'All fields are required' })
   }
-
-  if (users.has(email)) {
-    return res.status(409).json({ error: 'User already exists' })
+  
+  if (users.find(u => u.email === email)) {
+    return res.status(400).json({ error: 'Email already registered' })
   }
-
-  // In production, hash the password with bcrypt
-  users.set(email, { email, password, name: name || email.split('@')[0] })
-
-  const token = jwt.sign({ email }, config.jwtSecret, { expiresIn: '7d' })
-
-  res.status(201).json({
-    token,
-    user: { email, name: name || email.split('@')[0] },
-  })
+  
+  const user = { id: Date.now().toString(), name, email, password, avatar: null }
+  users.push(user)
+  
+  const token = `token_${user.id}_${Date.now()}`
+  res.json({ token, user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar } })
 })
 
 // POST /api/auth/login
 authRouter.post('/login', (req, res) => {
   const { email, password } = req.body
-
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required' })
+  
+  const user = users.find(u => u.email === email && u.password === password)
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid email or password' })
   }
-
-  const user = users.get(email)
-  if (!user || user.password !== password) {
-    return res.status(401).json({ error: 'Invalid credentials' })
-  }
-
-  const token = jwt.sign({ email }, config.jwtSecret, { expiresIn: '7d' })
-
-  res.json({
-    token,
-    user: { email: user.email, name: user.name },
-  })
+  
+  const token = `token_${user.id}_${Date.now()}`
+  res.json({ token, user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar } })
 })
+
+// POST /api/auth/logout
+authRouter.post('/logout', (req, res) => {
+  res.json({ success: true })
+})
+
+// GET /api/auth/me
+authRouter.get('/me', (req, res) => {
+  const authHeader = req.headers.authorization
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized' })
+  }
+  
+  const token = authHeader.split(' ')[1]
+  const userId = token.split('_')[1]
+  const user = users.find(u => u.id === userId)
+  
+  if (!user) {
+    return res.status(401).json({ error: 'User not found' })
+  }
+  
+  res.json({ id: user.id, name: user.name, email: user.email, avatar: user.avatar })
+})
+
+export default authRouter

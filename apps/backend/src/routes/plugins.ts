@@ -2,349 +2,289 @@ import { Router } from 'express'
 
 export const pluginsRouter = Router()
 
-// Mock data for plugins
-const mockPlugins = [
+// Categories
+const categories = [
+  { id: '1', name: 'Project Management', icon: '📊', count: 24 },
+  { id: '2', name: 'Automation', icon: '⚡', count: 18 },
+  { id: '3', name: 'Development Tools', icon: '🔧', count: 32 },
+  { id: '4', name: 'Collaboration', icon: '👥', count: 15 },
+  { id: '5', name: 'Reports & Analytics', icon: '📈', count: 21 },
+  { id: '6', name: 'Security', icon: '🔒', count: 12 },
+  { id: '7', name: 'Time Tracking', icon: '⏱️', count: 9 },
+  { id: '8', name: 'Documentation', icon: '📄', count: 14 },
+]
+
+// Mock apps data
+const mockApps = [
   {
     id: '1',
-    name: 'Jira Integration Plus',
-    description: '深度集成 Jira，支持敏捷看板、冲刺规划和实时同步。提供双向同步、自定义字段映射、自动化工作流等功能。',
-    categoryName: '项目管理',
-    icon: '🎯',
-    version: '2.1.0',
-    developer: 'ONES Team',
-    installs: 15420,
-    rating: '4.80',
-    pricing: 'free',
-    highlights: ['双向同步', '敏捷看板', '自动化工作流', '自定义字段'],
-    compatibility: ['ONES Project', 'ONES Wiki'],
-    lastUpdated: '2024-01-15',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-15T00:00:00Z',
+    name: 'Project Management Plus',
+    description: 'Add Gantt charts, Kanban boards to your ONES projects',
+    shortDescription: 'Advanced project management with Gantt charts and Kanban',
+    icon: '📊',
+    category: 'Project Management',
+    developer: 'ONES Official',
+    version: '3.2.1',
+    rating: 4.8,
+    reviews: 1247,
+    downloads: 12500,
+    screenshots: ['Dashboard', 'Gantt View', 'Kanban Board', 'Reports'],
+    pricing: { type: 'freemium', price: 29 },
+    features: ['Gantt Charts', 'Kanban Boards', 'Timeline Views', 'Team Collaboration'],
+    verified: true,
+    featured: true,
+    createdAt: '2024-01-15',
+    updatedAt: '2024-02-15'
   },
   {
     id: '2',
-    name: 'Code Review Assistant',
-    description: 'AI 驱动的代码审查工具，自动检测代码问题和安全漏洞。支持多种编程语言，提供智能建议。',
-    categoryName: '开发工具',
-    icon: '🔍',
-    version: '1.5.2',
-    developer: 'DevTools Inc',
-    installs: 8930,
-    rating: '4.60',
-    pricing: 'freemium',
-    highlights: ['AI 代码分析', '安全漏洞检测', '多语言支持', 'PR 自动审查'],
-    compatibility: ['ONES Project', 'ONES Wiki'],
-    lastUpdated: '2024-01-10',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-10T00:00:00Z',
+    name: 'Workflow Automator',
+    description: 'Create custom automation rules for your workflows',
+    shortDescription: 'Powerful workflow automation builder',
+    icon: '⚡',
+    category: 'Automation',
+    developer: 'Agile Tools',
+    version: '2.8.0',
+    rating: 4.6,
+    reviews: 892,
+    downloads: 8900,
+    screenshots: ['Builder', 'Triggers', 'Actions', 'Templates'],
+    pricing: { type: 'freemium', price: 19 },
+    features: ['Visual Builder', '100+ Templates', 'Scheduled Triggers', 'Analytics'],
+    verified: true,
+    featured: true,
+    createdAt: '2024-01-20',
+    updatedAt: '2024-02-20'
   },
   {
     id: '3',
-    name: 'Wiki Sync',
-    description: '与 Confluence 无缝同步，支持双向编辑和版本控制。保持文档一致性，提升团队协作效率。',
-    categoryName: '文档协作',
-    icon: '📚',
-    version: '3.0.1',
-    developer: 'DocFlow',
-    installs: 12500,
-    rating: '4.70',
-    pricing: 'paid',
-    highlights: ['双向同步', '版本控制', '冲突解决', '批量导入'],
-    compatibility: ['ONES Wiki'],
-    lastUpdated: '2024-01-12',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-12T00:00:00Z',
+    name: 'Git Integration',
+    description: 'Connect GitHub, GitLab, and Bitbucket to your workspace',
+    shortDescription: 'Seamless Git repository integration',
+    icon: '🔗',
+    category: 'Development Tools',
+    developer: 'DevConnect',
+    version: '4.1.2',
+    rating: 4.9,
+    reviews: 567,
+    downloads: 6700,
+    screenshots: ['Repositories', 'Commits', 'PR Tracking', 'Branches'],
+    pricing: { type: 'free' },
+    features: ['Multi-Platform', 'PR Tracking', 'Commit Linking', 'Secure Auth'],
+    verified: true,
+    featured: false,
+    createdAt: '2024-01-10',
+    updatedAt: '2024-02-18'
   },
   {
     id: '4',
-    name: 'Design System Manager',
-    description: '统一管理设计系统，自动生成组件文档和样式指南。支持 Figma、Sketch 导入。',
-    categoryName: '设计工具',
-    icon: '🎨',
-    version: '1.2.0',
-    developer: 'DesignOps',
-    installs: 6780,
-    rating: '4.50',
-    pricing: 'freemium',
-    highlights: ['设计系统管理', '组件文档生成', 'Figma 集成', '版本追踪'],
-    compatibility: ['ONES Wiki', 'ONES Project'],
-    lastUpdated: '2024-01-08',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-08T00:00:00Z',
+    name: 'Team Collaboration',
+    description: 'Real-time collaboration with live editing and chat',
+    shortDescription: 'Real-time team collaboration tools',
+    icon: '👥',
+    category: 'Collaboration',
+    developer: 'CollabTech',
+    version: '5.0.0',
+    rating: 4.7,
+    reviews: 1089,
+    downloads: 15200,
+    screenshots: ['Workspace', 'Live Edit', 'Chat', 'Files'],
+    pricing: { type: 'freemium', price: 15 },
+    features: ['Live Editing', 'Team Chat', 'File Sharing', 'Video Calls'],
+    verified: false,
+    featured: false,
+    createdAt: '2024-01-25',
+    updatedAt: '2024-02-22'
   },
   {
     id: '5',
-    name: 'Workflow Automator',
-    description: '可视化工作流编排，支持 100+ 应用集成。无需代码即可创建复杂自动化流程。',
-    categoryName: '自动化',
-    icon: '⚡',
-    version: '4.1.0',
-    developer: 'AutoFlow',
-    installs: 21300,
-    rating: '4.90',
-    pricing: 'freemium',
-    highlights: ['可视化编辑器', '100+ 集成', '条件分支', '定时触发'],
-    compatibility: ['ONES Project', 'ONES Wiki', 'ONES Performance'],
-    lastUpdated: '2024-01-14',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-14T00:00:00Z',
+    name: 'Data Reports',
+    description: 'Visual reports and interactive dashboards',
+    shortDescription: 'Advanced reporting and analytics',
+    icon: '📈',
+    category: 'Reports & Analytics',
+    developer: 'DataViz Solutions',
+    version: '2.5.3',
+    rating: 4.5,
+    reviews: 734,
+    downloads: 9800,
+    screenshots: ['Dashboard', 'Charts', 'Exports', 'Schedules'],
+    pricing: { type: 'paid', price: 49 },
+    features: ['Visual Dashboards', '30+ Charts', 'Export Options', 'Scheduled Reports'],
+    verified: true,
+    featured: true,
+    createdAt: '2024-01-08',
+    updatedAt: '2024-02-10'
   },
   {
     id: '6',
-    name: 'Security Scanner Pro',
-    description: '实时安全扫描，支持 OWASP Top 10 和自定义规则。保护您的代码和基础设施安全。',
-    categoryName: '安全合规',
+    name: 'Security Audit',
+    description: 'Operation logs and security alerts',
+    shortDescription: 'Comprehensive security audit logging',
     icon: '🔒',
-    version: '2.3.0',
-    developer: 'SecureCode',
-    installs: 9870,
-    rating: '4.70',
-    pricing: 'paid',
-    highlights: ['OWASP Top 10', '自定义规则', '实时扫描', '合规报告'],
-    compatibility: ['ONES Project', 'ONES Wiki'],
-    lastUpdated: '2024-01-11',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-11T00:00:00Z',
+    category: 'Security',
+    developer: 'SecureOps',
+    version: '1.9.0',
+    rating: 4.8,
+    reviews: 312,
+    downloads: 4500,
+    screenshots: ['Audit Log', 'Alerts', 'Compliance', 'Activity'],
+    pricing: { type: 'paid', price: 99 },
+    features: ['Audit Logging', 'Real-time Alerts', 'Compliance Reports', 'Anomaly Detection'],
+    verified: true,
+    featured: false,
+    createdAt: '2024-01-30',
+    updatedAt: '2024-02-25'
   },
   {
     id: '7',
-    name: 'Sprint Planner',
-    description: '智能冲刺规划，基于历史数据预测工作量。帮助团队更准确地规划迭代。',
-    categoryName: '项目管理',
-    icon: '📊',
-    version: '1.8.0',
-    developer: 'AgileTools',
-    installs: 7650,
-    rating: '4.40',
-    pricing: 'free',
-    highlights: ['智能预测', '历史分析', '容量规划', '燃尽图'],
-    compatibility: ['ONES Project'],
-    lastUpdated: '2024-01-09',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-09T00:00:00Z',
+    name: 'Time Tracker Pro',
+    description: 'Track time spent on tasks and projects',
+    shortDescription: 'Professional time tracking solution',
+    icon: '⏱️',
+    category: 'Time Tracking',
+    developer: 'Productivity Labs',
+    version: '2.1.0',
+    rating: 4.4,
+    reviews: 456,
+    downloads: 6200,
+    screenshots: ['Timer', 'Reports', 'Projects', 'Team'],
+    pricing: { type: 'freemium', price: 9 },
+    features: ['Automatic Tracking', 'Detailed Reports', 'Team Overview', 'Integrations'],
+    verified: true,
+    featured: false,
+    createdAt: '2024-02-01',
+    updatedAt: '2024-02-20'
   },
   {
     id: '8',
-    name: 'Git Analytics',
-    description: '代码仓库分析，可视化团队贡献和代码质量趋势。深入了解团队开发效率。',
-    categoryName: '开发工具',
-    icon: '📈',
-    version: '2.0.0',
-    developer: 'CodeMetrics',
-    installs: 11200,
-    rating: '4.60',
-    pricing: 'freemium',
-    highlights: ['贡献分析', '代码质量趋势', '团队报告', 'PR 统计'],
-    compatibility: ['ONES Project'],
-    lastUpdated: '2024-01-13',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-13T00:00:00Z',
+    name: 'Document Editor',
+    description: 'Rich text editing with collaboration features',
+    shortDescription: 'Collaborative document editing',
+    icon: '📄',
+    category: 'Documentation',
+    developer: 'DocuTeam',
+    version: '3.0.1',
+    rating: 4.6,
+    reviews: 678,
+    downloads: 8900,
+    screenshots: ['Editor', 'Templates', 'Export', 'Share'],
+    pricing: { type: 'free' },
+    features: ['Rich Editor', 'Templates', 'Version History', 'Real-time Collab'],
+    verified: true,
+    featured: false,
+    createdAt: '2024-01-18',
+    updatedAt: '2024-02-15'
   },
   {
     id: '9',
-    name: 'Template Hub',
-    description: '项目模板库，快速启动新项目。支持自定义模板和团队共享。',
-    categoryName: '文档协作',
-    icon: '📝',
-    version: '1.4.0',
-    developer: 'TemplateCo',
-    installs: 5430,
-    rating: '4.30',
-    pricing: 'free',
-    highlights: ['预置模板', '自定义模板', '团队共享', '版本管理'],
-    compatibility: ['ONES Project', 'ONES Wiki'],
-    lastUpdated: '2024-01-07',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-07T00:00:00Z',
+    name: 'API Testing Suite',
+    description: 'Test and debug APIs directly in your workspace',
+    shortDescription: 'Comprehensive API testing tools',
+    icon: '🧪',
+    category: 'Development Tools',
+    developer: 'DevTools Inc',
+    version: '1.5.0',
+    rating: 4.7,
+    reviews: 234,
+    downloads: 3400,
+    screenshots: ['Requests', 'Collections', 'Tests', 'Docs'],
+    pricing: { type: 'freemium', price: 25 },
+    features: ['Request Builder', 'Collections', 'Auto Tests', 'API Docs'],
+    verified: true,
+    featured: false,
+    createdAt: '2024-02-05',
+    updatedAt: '2024-02-28'
   },
   {
     id: '10',
-    name: 'API Designer',
-    description: '可视化 API 设计工具，自动生成 OpenAPI 文档。简化 API 开发流程。',
-    categoryName: '开发工具',
-    icon: '🔌',
-    version: '3.2.0',
-    developer: 'APITools',
-    installs: 18900,
-    rating: '4.80',
-    pricing: 'freemium',
-    highlights: ['可视化设计', 'OpenAPI 生成', 'Mock 服务', '文档导出'],
-    compatibility: ['ONES Project', 'ONES Wiki'],
-    lastUpdated: '2024-01-16',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-16T00:00:00Z',
+    name: 'Knowledge Base',
+    description: 'Create and organize your team knowledge',
+    shortDescription: 'Team knowledge management',
+    icon: '📚',
+    category: 'Documentation',
+    developer: 'WikiWorks',
+    version: '2.3.0',
+    rating: 4.5,
+    reviews: 567,
+    downloads: 7800,
+    screenshots: ['Wiki', 'Search', 'Categories', 'Templates'],
+    pricing: { type: 'freemium', price: 19 },
+    features: ['Wiki Pages', 'Full-text Search', 'Categories', 'Templates'],
+    verified: false,
+    featured: false,
+    createdAt: '2024-01-22',
+    updatedAt: '2024-02-18'
   },
-  {
-    id: '11',
-    name: 'Time Tracker',
-    description: '时间追踪工具，自动记录工作时长。生成详细的时间报告和效率分析。',
-    categoryName: '项目管理',
-    icon: '⏱️',
-    version: '2.0.0',
-    developer: 'TimeFlow',
-    installs: 8900,
-    rating: '4.50',
-    pricing: 'freemium',
-    highlights: ['自动追踪', '时间报告', '效率分析', '日历集成'],
-    compatibility: ['ONES Project'],
-    lastUpdated: '2024-01-06',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-06T00:00:00Z',
-  },
-  {
-    id: '12',
-    name: 'Knowledge Graph',
-    description: '知识图谱可视化，自动构建文档关联网络。发现知识之间的隐藏联系。',
-    categoryName: '文档协作',
-    icon: '🕸️',
-    version: '1.0.0',
-    developer: 'GraphLabs',
-    installs: 3200,
-    rating: '4.20',
-    pricing: 'paid',
-    highlights: ['知识图谱', '自动关联', '可视化导航', '智能推荐'],
-    compatibility: ['ONES Wiki'],
-    lastUpdated: '2024-01-05',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-05T00:00:00Z',
-  },
-]
-
-// Mock categories
-const mockCategories = [
-  { id: '1', name: '项目管理', description: '项目规划、跟踪和协作工具', icon: '📋', pluginCount: 3 },
-  { id: '2', name: '开发工具', description: '代码审查、CI/CD、版本控制', icon: '🔧', pluginCount: 3 },
-  { id: '3', name: '文档协作', description: '知识管理、文档编辑、Wiki', icon: '📄', pluginCount: 3 },
-  { id: '4', name: '设计工具', description: 'UI/UX 设计、原型制作', icon: '🎨', pluginCount: 1 },
-  { id: '5', name: '自动化', description: '工作流自动化、集成工具', icon: '⚡', pluginCount: 1 },
-  { id: '6', name: '安全合规', description: '安全扫描、合规审计', icon: '🔒', pluginCount: 1 },
 ]
 
 // Mock reviews
-const mockReviews = [
-  { id: '1', appId: '1', userId: 'user-001', userName: '张三', rating: 5, comment: '非常好用的工具，大大提升了我们团队的协作效率！', createdAt: '2024-01-15T10:30:00Z' },
-  { id: '2', appId: '1', userId: 'user-002', userName: '李四', rating: 4, comment: '功能很强大，但学习曲线稍陡。希望增加更多教程。', createdAt: '2024-01-14T14:20:00Z' },
-  { id: '3', appId: '2', userId: 'user-003', userName: '王五', rating: 5, comment: 'AI 代码审查非常准确，节省了大量时间！', createdAt: '2024-01-13T09:15:00Z' },
-  { id: '4', appId: '5', userId: 'user-004', userName: '赵六', rating: 5, comment: '自动化工作流太强大了，推荐给所有团队！', createdAt: '2024-01-12T16:45:00Z' },
-]
+const mockReviews: Record<string, any[]> = {
+  '1': [
+    { id: 1, author: 'Sarah Chen', avatar: '👩‍💼', rating: 5, date: '2 days ago', content: 'This app has transformed how our team manages projects. Highly recommended!', helpful: 24 },
+    { id: 2, author: 'Michael Park', avatar: '👨‍💻', rating: 5, date: '1 week ago', content: 'Excellent integration with our existing tools. Setup was a breeze.', helpful: 18 },
+    { id: 3, author: 'Emily Rodriguez', avatar: '👩‍🔬', rating: 4, date: '2 weeks ago', content: 'Great features overall. Would love to see more customization options.', helpful: 12 },
+  ],
+  '2': [
+    { id: 1, author: 'David Kim', avatar: '👨‍🎨', rating: 5, date: '3 days ago', content: 'Automation saves us so much time. Customer support is top-notch!', helpful: 31 },
+    { id: 2, author: 'Lisa Wang', avatar: '👩‍💻', rating: 4, date: '1 week ago', content: 'Very solid app with great features. Looking forward to future updates.', helpful: 9 },
+  ],
+}
 
-// GET /api/plugins - List plugins with filtering and pagination
-pluginsRouter.get('/', (req, res) => {
-  try {
-    const { q, category, sort, page = '1', limit = '20' } = req.query
-
-    const pageNum = parseInt(page as string, 10)
-    const limitNum = parseInt(limit as string, 10)
-    const offset = (pageNum - 1) * limitNum
-
-    let plugins = [...mockPlugins]
-
-    // Filter by search query
-    if (q && typeof q === 'string') {
-      const query = q.toLowerCase()
-      plugins = plugins.filter(
-        (plugin) =>
-          plugin.name.toLowerCase().includes(query) ||
-          plugin.description.toLowerCase().includes(query)
-      )
-    }
-
-    // Filter by category
-    if (category && typeof category === 'string' && category !== '全部') {
-      plugins = plugins.filter((plugin) => plugin.categoryName === category)
-    }
-
-    // Sort
-    if (sort === 'rating') {
-      plugins.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating))
-    } else if (sort === 'name') {
-      plugins.sort((a, b) => a.name.localeCompare(b.name))
-    } else if (sort === 'updated') {
-      plugins.sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime())
-    } else {
-      // Default: sort by installs
-      plugins.sort((a, b) => b.installs - a.installs)
-    }
-
-    const total = plugins.length
-    const paginatedPlugins = plugins.slice(offset, offset + limitNum)
-
-    res.json({
-      plugins: paginatedPlugins,
-      total,
-      page: pageNum,
-      limit: limitNum,
-      totalPages: Math.ceil(total / limitNum),
-    })
-  } catch (error) {
-    console.error('Error fetching plugins:', error)
-    res.status(500).json({ error: 'Failed to fetch plugins' })
-  }
-})
-
-// GET /api/plugins/categories - List categories
+// GET /api/categories
 pluginsRouter.get('/categories', (req, res) => {
-  try {
-    // Calculate plugin count per category
-    const categoriesWithCount = mockCategories.map((cat) => ({
-      ...cat,
-      pluginCount: mockPlugins.filter((p) => p.categoryName === cat.name).length,
-    }))
-
-    res.json({ categories: categoriesWithCount })
-  } catch (error) {
-    console.error('Error fetching categories:', error)
-    res.status(500).json({ error: 'Failed to fetch categories' })
-  }
+  res.json(categories)
 })
 
-// GET /api/plugins/:id - Get plugin details
+// GET /api/plugins (root)
+pluginsRouter.get('/', (req, res) => {
+  let apps = [...mockApps]
+  
+  const { category, search, sort } = req.query
+  
+  if (category && category !== 'All') {
+    apps = apps.filter(app => app.category === category)
+  }
+  
+  if (search) {
+    const query = (search as string).toLowerCase()
+    apps = apps.filter(app => 
+      app.name.toLowerCase().includes(query) ||
+      app.description.toLowerCase().includes(query)
+    )
+  }
+  
+  if (sort === 'rating') {
+    apps.sort((a, b) => b.rating - a.rating)
+  } else if (sort === 'downloads') {
+    apps.sort((a, b) => b.downloads - a.downloads)
+  } else if (sort === 'newest') {
+    apps.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+  } else {
+    // Default: featured first, then by downloads
+    apps.sort((a, b) => {
+      if (a.featured && !b.featured) return -1
+      if (!a.featured && b.featured) return 1
+      return b.downloads - a.downloads
+    })
+  }
+  
+  res.json(apps)
+})
+
+// GET /api/plugins/:id
 pluginsRouter.get('/:id', (req, res) => {
-  try {
-    const { id } = req.params
-
-    const plugin = mockPlugins.find((p) => p.id === id)
-
-    if (!plugin) {
-      return res.status(404).json({ error: 'Plugin not found' })
-    }
-
-    // Get reviews for this plugin
-    const reviews = mockReviews.filter((r) => r.appId === id)
-
-    res.json({
-      ...plugin,
-      reviews,
-    })
-  } catch (error) {
-    console.error('Error fetching plugin:', error)
-    res.status(500).json({ error: 'Failed to fetch plugin' })
+  const app = mockApps.find(a => a.id === req.params.id)
+  if (!app) {
+    return res.status(404).json({ error: 'App not found' })
   }
+  res.json(app)
 })
 
-// GET /api/plugins/:id/reviews - Get plugin reviews
+// GET /api/plugins/:id/reviews
 pluginsRouter.get('/:id/reviews', (req, res) => {
-  try {
-    const { id } = req.params
-    const { page = '1', limit = '10' } = req.query
-
-    const pageNum = parseInt(page as string, 10)
-    const limitNum = parseInt(limit as string, 10)
-    const offset = (pageNum - 1) * limitNum
-
-    const pluginReviews = mockReviews.filter((r) => r.appId === id)
-    const total = pluginReviews.length
-    const paginatedReviews = pluginReviews.slice(offset, offset + limitNum)
-
-    res.json({
-      reviews: paginatedReviews,
-      total,
-      page: pageNum,
-      limit: limitNum,
-      totalPages: Math.ceil(total / limitNum),
-    })
-  } catch (error) {
-    console.error('Error fetching reviews:', error)
-    res.status(500).json({ error: 'Failed to fetch reviews' })
-  }
+  const reviews = mockReviews[req.params.id] || []
+  res.json(reviews)
 })
+
+export default pluginsRouter
