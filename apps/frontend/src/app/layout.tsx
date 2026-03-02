@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'ONES Marketplace - Enterprise App Store',
   description: 'Discover, install and manage enterprise apps for your ONES platform',
-  themeColor: '#09090b',
+  themeColor: '#ffffff',
 }
 
 export default function RootLayout({
