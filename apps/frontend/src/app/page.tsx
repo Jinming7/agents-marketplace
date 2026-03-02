@@ -123,33 +123,42 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 text-white py-20 overflow-hidden">
-        {/* Background Effects */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-indigo-500/30 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      <section className="relative bg-white py-16 overflow-hidden">
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-indigo-50" />
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-indigo-100/40 to-purple-100/40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-to-tr from-blue-100/30 to-cyan-100/30 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
         </div>
         
         <div className="relative max-w-7xl mx-auto px-4 text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 mb-6">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-300 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
             </span>
-            <span className="text-sm text-indigo-100">Enterprise-Grade Plugin Marketplace</span>
+            <span className="text-sm text-indigo-700 font-medium">Enterprise-Grade Plugin Marketplace</span>
           </div>
 
-          <h1 className="text-5xl font-bold mb-6">ONES Marketplace</h1>
-          <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
-            Discover, install and manage enterprise apps for your ONES platform
+          {/* Title with gradient */}
+          <h1 className="text-5xl md:text-6xl font-bold mb-6">
+            <span className="bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 bg-clip-text text-transparent">
+              ONES Marketplace
+            </span>
+          </h1>
+          
+          {/* Subtitle */}
+          <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+            Discover, install and manage enterprise apps for your ONES platform. 
+            <span className="text-indigo-600 font-medium"> Trusted by 200K+ users worldwide.</span>
           </p>
           
           {/* Search */}
-          <div className="max-w-2xl mx-auto mb-8">
+          <div className="max-w-2xl mx-auto mb-10">
             <div className="relative">
-              <div className="absolute inset-0 bg-white/10 rounded-2xl blur-xl" />
-              <div className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl overflow-hidden shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-2xl blur-xl" />
+              <div className="relative flex items-center bg-white rounded-2xl overflow-hidden shadow-xl shadow-slate-200/50 border border-slate-200/80">
                 <svg className="w-5 h-5 text-slate-400 ml-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -160,7 +169,7 @@ export default function HomePage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="flex-1 px-4 py-5 bg-transparent text-slate-900 placeholder-slate-400 focus:outline-none"
                 />
-                <button className="m-2 px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 font-medium transition-colors">
+                <button className="m-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl hover:from-indigo-700 hover:to-indigo-800 font-medium transition-all shadow-lg shadow-indigo-500/25">
                   Search
                 </button>
               </div>
@@ -168,16 +177,16 @@ export default function HomePage() {
           </div>
           
           {/* Trust Badges */}
-          <div className="flex justify-center gap-4 text-sm flex-wrap">
+          <div className="flex justify-center gap-3 text-sm flex-wrap">
             {[
-              { icon: '🔒', text: 'SOC2 Certified' },
-              { icon: '✓', text: 'GDPR Compliant' },
-              { icon: '👥', text: '200K+ Users' },
-              { icon: '⭐', text: '4.8 Avg Rating' },
+              { icon: '🔒', text: 'SOC2 Certified', color: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
+              { icon: '✓', text: 'GDPR Compliant', color: 'bg-blue-50 text-blue-700 border-blue-100' },
+              { icon: '👥', text: '200K+ Users', color: 'bg-purple-50 text-purple-700 border-purple-100' },
+              { icon: '⭐', text: '4.8 Avg Rating', color: 'bg-amber-50 text-amber-700 border-amber-100' },
             ].map((badge) => (
               <span
                 key={badge.text}
-                className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20"
+                className={`flex items-center gap-2 px-4 py-2 rounded-full border ${badge.color}`}
               >
                 <span>{badge.icon}</span>
                 {badge.text}
