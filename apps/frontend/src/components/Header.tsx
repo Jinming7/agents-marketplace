@@ -23,7 +23,7 @@ export default function Header() {
   // Track scroll for header background
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 10)
+      setScrolled(window.scrollY > 20)
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
@@ -96,13 +96,13 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-apple ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out-expo ${
         scrolled
-          ? 'bg-white/80 backdrop-blur-xl shadow-soft border-b border-gray-200/50'
-          : 'bg-white/60 backdrop-blur-lg'
+          ? 'bg-white/90 backdrop-blur-xl shadow-soft'
+          : 'bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1200px] mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
@@ -121,10 +121,10 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                   pathname === link.href
-                    ? 'text-primary bg-primary-50'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    ? 'text-primary bg-primary/5'
+                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100/50'
                 }`}
               >
                 {link.label}
@@ -135,21 +135,21 @@ export default function Header() {
           {/* Right Section */}
           <div className="flex items-center gap-3">
             {loading ? (
-              <div className="w-9 h-9 rounded-full bg-gray-200 animate-pulse" />
+              <div className="w-9 h-9 rounded-full bg-gray-100 animate-pulse" />
             ) : user ? (
               <div className="relative" onClick={(e) => e.stopPropagation()}>
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-gray-100 transition-colors duration-200"
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-gray-100/50 transition-colors duration-300"
                 >
-                  <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white font-medium text-sm shadow-sm">
+                  <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white font-medium text-sm">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                   <span className="hidden sm:block text-sm font-medium text-gray-700">
                     {user.name}
                   </span>
                   <svg
-                    className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                    className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${
                       userMenuOpen ? 'rotate-180' : ''
                     }`}
                     fill="none"
@@ -162,7 +162,7 @@ export default function Header() {
 
                 {/* User Dropdown Menu */}
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-soft-lg border border-gray-100 py-2 animate-scale-in origin-top-right">
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-soft-lg border border-gray-100/50 py-2 animate-scale-in origin-top-right">
                     {/* User Info */}
                     <div className="px-4 py-3 border-b border-gray-100">
                       <div className="font-semibold text-gray-900">{user.name}</div>
@@ -208,7 +208,7 @@ export default function Header() {
                     <div className="pt-2 border-t border-gray-100">
                       <button
                         onClick={handleLogout}
-                        className="flex items-center gap-3 w-full px-4 py-2.5 text-error hover:bg-error-50 transition-colors"
+                        className="flex items-center gap-3 w-full px-4 py-2.5 text-red-500 hover:bg-red-50 transition-colors"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -223,13 +223,13 @@ export default function Header() {
               <>
                 <Link
                   href="/login"
-                  className="hidden sm:block px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                  className="hidden sm:block px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
                 >
                   Login
                 </Link>
                 <Link
                   href="/register"
-                  className="inline-flex items-center justify-center font-medium rounded-xl px-5 py-2.5 text-sm bg-primary text-white hover:bg-primary-600 active:bg-primary-700 shadow-sm hover:shadow-md transition-all duration-200"
+                  className="btn-primary px-5 py-2.5 text-sm rounded-xl"
                 >
                   Sign Up
                 </Link>
@@ -238,7 +238,7 @@ export default function Header() {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="md:hidden p-2 rounded-xl hover:bg-gray-100/50 transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -255,15 +255,15 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white/95 backdrop-blur-xl border-t border-gray-100 animate-slide-in-up">
-          <nav className="max-w-7xl mx-auto px-4 py-4 space-y-1">
+        <div className="md:hidden bg-white/95 backdrop-blur-xl border-t border-gray-100/50 animate-fade-in-up">
+          <nav className="max-w-[1200px] mx-auto px-6 py-4 space-y-1">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`block px-4 py-3 rounded-xl text-base font-medium transition-colors ${
                   pathname === link.href
-                    ? 'text-primary bg-primary-50'
+                    ? 'text-primary bg-primary/5'
                     : 'text-gray-600 hover:bg-gray-50'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
@@ -275,7 +275,7 @@ export default function Header() {
               {user ? (
                 <button
                   onClick={handleLogout}
-                  className="block w-full text-left px-4 py-3 rounded-xl text-error hover:bg-error-50 font-medium"
+                  className="block w-full text-left px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 font-medium"
                 >
                   Sign Out
                 </button>
@@ -290,7 +290,7 @@ export default function Header() {
                   </Link>
                   <Link
                     href="/register"
-                    className="block px-4 py-3 rounded-xl text-primary bg-primary-50 font-medium mt-2"
+                    className="block px-4 py-3 rounded-xl text-white bg-primary font-medium mt-2 text-center"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Sign Up
