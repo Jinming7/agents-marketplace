@@ -92,107 +92,76 @@ export default function HomePage() {
 
   return (
     <div className="bg-gray-50 pt-16">
-      {/* Hero Section - Stunning First Impression */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-b from-slate-50 via-white to-gray-50">
-        {/* Animated Gradient Background Orbs */}
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-white via-gray-50 to-gray-50">
+        {/* Background Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Primary orb - top right */}
-          <div className="absolute -top-32 -right-32 w-[700px] h-[700px] bg-gradient-to-br from-indigo-300/40 via-purple-300/30 to-pink-200/20 rounded-full blur-3xl animate-float" />
-          
-          {/* Secondary orb - bottom left */}
-          <div className="absolute -bottom-48 -left-48 w-[600px] h-[600px] bg-gradient-to-tr from-blue-300/35 via-cyan-200/25 to-teal-200/15 rounded-full blur-3xl animate-float-delayed" />
-          
-          {/* Accent orb - center left */}
-          <div className="absolute top-1/3 -left-20 w-[400px] h-[400px] bg-gradient-to-r from-violet-300/25 to-indigo-200/15 rounded-full blur-2xl animate-float" />
-          
-          {/* Accent orb - center right */}
-          <div className="absolute bottom-1/4 -right-16 w-[350px] h-[350px] bg-gradient-to-l from-rose-200/20 to-orange-200/15 rounded-full blur-2xl animate-float-delayed" />
-          
-          {/* Center glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] bg-gradient-radial from-indigo-100/40 via-purple-50/20 to-transparent rounded-full" />
-          
-          {/* Subtle grid pattern */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:64px_64px]" />
+          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-gradient-to-br from-primary-100/40 to-secondary-100/40 rounded-full blur-3xl" />
+          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-tr from-primary-100/30 to-secondary-100/30 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-primary-50/50 to-transparent rounded-full" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32 w-full">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
           <div className="text-center max-w-4xl mx-auto">
-            {/* Animated Badge */}
-            <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100/50 mb-10 animate-fade-in-up shadow-sm">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-500"></span>
-              </span>
-              <span className="text-sm font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                New apps added weekly
-              </span>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary-100 mb-8 animate-fade-in">
+              <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+              <span className="text-sm font-medium text-primary-700">New apps added weekly</span>
             </div>
 
-            {/* Stunning Gradient Heading */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight mb-8 animate-fade-in-up animation-delay-100 leading-[1.1]">
-              <span className="block text-gray-900">Discover the best</span>
-              <span className="block mt-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 bg-clip-text text-transparent bg-[length:200%_auto] animate-[gradient_8s_linear_infinite]">
-                enterprise apps
-              </span>
+            {/* Heading */}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 tracking-tight mb-6 animate-fade-in-up">
+              Discover the best
+              <br />
+              <span className="text-gradient">enterprise apps</span>
             </h1>
 
             {/* Subheading */}
-            <p className="text-lg sm:text-xl text-gray-600 mb-12 max-w-2xl mx-auto animate-fade-in-up animation-delay-200 leading-relaxed">
+            <p className="text-lg sm:text-xl text-gray-600 mb-10 max-w-2xl mx-auto animate-fade-in-up animation-delay-100">
               Transform your workflow with powerful integrations. Browse, install, and manage apps designed for modern teams.
             </p>
 
-            {/* Glowing Search Box */}
-            <div className="max-w-2xl mx-auto mb-14 animate-fade-in-up animation-delay-300">
+            {/* Search */}
+            <div className="max-w-2xl mx-auto mb-12 animate-fade-in-up animation-delay-200">
               <div className="relative group">
-                {/* Outer glow effect */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-[1.25rem] blur-lg opacity-30 group-hover:opacity-50 group-focus-within:opacity-60 transition-all duration-500 animate-glow" />
-                
-                {/* Inner search container */}
-                <div className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 overflow-hidden transition-all duration-300">
-                  <div className="pl-6">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary-400 to-secondary-400 rounded-2xl blur-lg opacity-20 group-hover:opacity-30 transition-opacity" />
+                <div className="relative flex items-center bg-white rounded-2xl shadow-soft-lg border border-gray-100 overflow-hidden">
+                  <svg className="w-5 h-5 text-gray-400 ml-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
                   <input
                     type="text"
                     placeholder="Search apps by name, category, or feature..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="flex-1 px-5 py-5 text-gray-900 placeholder-gray-400 bg-transparent focus:outline-none text-base"
+                    className="flex-1 px-4 py-5 text-gray-900 placeholder-gray-400 focus:outline-none"
                   />
-                  <button className="m-2 px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 active:scale-[0.98] transition-all duration-200 shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30">
+                  <button className="m-2 px-6 py-3 bg-primary text-white font-medium rounded-xl hover:bg-primary-600 active:bg-primary-700 transition-colors shadow-sm hover:shadow-md">
                     Search
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Trust Badges with Enhanced Design */}
-            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 animate-fade-in-up animation-delay-500">
+            {/* Trust Badges */}
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 animate-fade-in-up animation-delay-300">
               {[
-                { icon: '🔒', label: 'SOC2 Certified', gradient: 'from-emerald-50 to-teal-50 border-emerald-200/50' },
-                { icon: '✓', label: 'GDPR Compliant', gradient: 'from-blue-50 to-indigo-50 border-blue-200/50' },
-                { icon: '👥', label: '200K+ Users', gradient: 'from-violet-50 to-purple-50 border-violet-200/50' },
-                { icon: '⭐', label: '4.8 Avg Rating', gradient: 'from-amber-50 to-orange-50 border-amber-200/50' },
-              ].map((badge, index) => (
+                { icon: '🔒', label: 'SOC2 Certified' },
+                { icon: '✓', label: 'GDPR Compliant' },
+                { icon: '👥', label: '200K+ Users' },
+                { icon: '⭐', label: '4.8 Avg Rating' },
+              ].map((badge) => (
                 <span
                   key={badge.label}
-                  className="inline-flex items-center gap-2.5 px-5 py-2.5 bg-gradient-to-r backdrop-blur-sm rounded-full text-sm font-medium text-gray-700 shadow-sm border transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
-                  style={{ 
-                    animationDelay: `${500 + index * 100}ms`,
-                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full text-sm text-gray-600 shadow-soft border border-gray-100/50"
                 >
-                  <span className="text-base">{badge.icon}</span>
+                  <span>{badge.icon}</span>
                   <span>{badge.label}</span>
                 </span>
               ))}
             </div>
           </div>
         </div>
-
-        {/* Bottom gradient fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-50 to-transparent pointer-events-none" />
       </section>
 
       {/* Featured Apps Section */}
@@ -215,7 +184,7 @@ export default function HomePage() {
               <Link
                 key={app.id}
                 href={`/apps/${app.id}`}
-                className="group relative bg-white rounded-2xl border border-gray-100 p-6 shadow-soft hover:shadow-soft-md transition-all duration-300 hover:-translate-y-1"
+                className="group relative bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-soft-lg transition-all duration-300 hover:-translate-y-1"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Spotlight Badge */}
@@ -230,18 +199,11 @@ export default function HomePage() {
                   {app.icon || '📦'}
                 </div>
 
-                {/* Content - App Store Hierarchy */}
+                {/* Content */}
                 <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-primary transition-colors">
                   {app.name}
                 </h3>
-                <p className="text-sm text-gray-500 line-clamp-2 mb-3">{app.description}</p>
-
-                {/* Category Badge */}
-                <div className="mb-4">
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-gray-100 text-gray-600 text-xs font-medium">
-                    {app.category}
-                  </span>
-                </div>
+                <p className="text-sm text-gray-500 line-clamp-2 mb-4">{app.description}</p>
 
                 {/* Stats */}
                 <div className="flex items-center justify-between text-sm">
@@ -252,7 +214,7 @@ export default function HomePage() {
                     {app.rating?.toFixed(1)}
                   </span>
                   <span className="text-gray-400">
-                    {(app.downloads / 1000).toFixed(1)}k downloads
+                    {(app.downloads / 1000).toFixed(1)}k users
                   </span>
                 </div>
               </Link>
@@ -276,7 +238,7 @@ export default function HomePage() {
             <div className="text-3xl mb-2">🏪</div>
             <div className="text-sm font-medium">All</div>
           </button>
-          {categories.map((cat) => (
+          {categories.slice(0, 6).map((cat) => (
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
@@ -341,7 +303,7 @@ export default function HomePage() {
               <Link
                 key={app.id}
                 href={`/apps/${app.id}`}
-                className="group bg-white rounded-2xl border border-gray-100 p-6 shadow-soft hover:shadow-soft-md transition-all duration-300 hover:-translate-y-1"
+                className="card-hover p-6 group"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div className="flex items-start gap-4">
@@ -359,7 +321,7 @@ export default function HomePage() {
                     )}
                   </div>
 
-                  {/* Content - App Store Hierarchy */}
+                  {/* Content */}
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-gray-900 group-hover:text-primary transition-colors line-clamp-1">
                       {app.name}
@@ -368,10 +330,10 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Footer - Info Hierarchy */}
+                {/* Footer */}
                 <div className="mt-5 pt-5 border-t border-gray-100">
                   <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-gray-100 text-gray-600 text-xs font-medium">
+                    <span className="badge bg-gray-100 text-gray-600">
                       {app.category}
                     </span>
                     <div className="flex items-center gap-4 text-sm">
