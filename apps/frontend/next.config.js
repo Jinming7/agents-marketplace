@@ -1,13 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:3001/api/:path*',
-      },
-    ]
-  },
+  // Removed rewrites - use Next.js API routes directly
+  // The API routes in src/app/api/* will handle database queries
 }
 
 module.exports = nextConfig
