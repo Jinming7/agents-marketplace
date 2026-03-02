@@ -1,39 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import { getDb, users, eq } from '@/lib/db'
 
-// Mock user database (shared with login)
-// In production, use a real database
-const users: Map<string, { id: string; name: string; email: string; password: string; avatar: string | null }> = new Map([
-  ['demo@example.com', { id: '1', name: 'Demo User', email: 'demo@example.com', password: 'demo123', avatar: null }]
-])
+const JWT_SECRET = process.env.JWT_SECRET || 'ones-marketplace-jwt-secret'
 
 export async function POST(request: NextRequest) {
   try {
     const { name, email, password } = await request.json()
     
+    // Validation
     if (!name || !email || !password) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 })
     }
     
-    if (users.has(email)) {
+    if (password.length < 6) {
+      return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 })
+    }
+    
+    const db = getDb()
+    
+    // Check if email already exists
+    const existingUser = await db.select().from(users).where(eq(users.email, email)).limit(1)
+    
+    if (existingUser.length > 0) {
       return NextResponse.json({ error: 'Email already registered' }, { status: 400 })
     }
     
-    const user = {
-      id: Date.now().toString(),
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10)
+    
+    // Insert new user
+    const [newUser] = await db.insert(users).values({
       name,
       email,
-      password,
-      avatar: null
-    }
+      password: hashedPassword,
+      avatar: null,
+      bio: null,
+      notifications: true,
+    }).returning()
     
-    users.set(email, user)
-    
-    // Generate a simple token (in production, use JWT)
-    const token = `token_${user.id}_${Date.now()}`
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: newUser.id, email: newUser.email },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    )
     
     return NextResponse.json({
       token,
-      user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar }
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        avatar: newUser.avatar,
+      }
     })
   } catch (error) {
     console.error('Register error:', error)
