@@ -5,6 +5,7 @@ interface ApiResponse<T> {
   success: boolean
   data?: T
   error?: string
+  total?: number
 }
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
@@ -18,8 +19,12 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<ApiR
         ...options?.headers,
       },
     })
-    const data = await res.json()
-    return { success: res.ok, data, error: !res.ok ? data.error : undefined }
+    const json = await res.json()
+    // Unwrap nested data structure from API
+    if (json.success && json.data) {
+      return { success: true, data: json.data as T, total: json.total }
+    }
+    return { success: res.ok, data: json as T, error: !res.ok ? json.error : undefined }
   } catch (error) {
     return { success: false, error: 'Network error' }
   }
