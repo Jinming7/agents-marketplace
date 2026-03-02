@@ -1,0 +1,398 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   NexusFlow Design System V3.0
+   Inspired by Apple & Stripe Design Philosophy
+   ======================================== */
+
+@layer base {
+  :root {
+    --color-void: #0a0a0a;
+    --color-ink: #111827;
+    --color-slate: #6B7280;
+    --color-mist: #F7F8FA;
+    --color-cloud: #FFFFFF;
+    --color-azure: #007AFF;
+    --color-azure-glow: rgba(0, 122, 255, 0.15);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    /* Radial gradient background - soft stage lighting */
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, #FFFFFF 0%, #F7F8FA 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+  }
+
+  /* Refined scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+  }
+
+  ::selection {
+    background: var(--color-azure-glow);
+    color: var(--color-azure);
+  }
+
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-cloud), 0 0 0 4px var(--color-azure);
+  }
+}
+
+@layer components {
+  /* ========================================
+     Card System - Floating with Light
+     ======================================== */
+  .card {
+    background: var(--color-cloud);
+    border-radius: 20px;
+    /* Multi-layered shadow with subtle blue glow */
+    box-shadow: 
+      0 0 0 1px rgba(0, 0, 0, 0.03),
+      0 2px 4px rgba(0, 0, 0, 0.02),
+      0 8px 16px rgba(0, 0, 0, 0.04),
+      0 24px 48px rgba(0, 0, 0, 0.06),
+      0 0 80px var(--color-azure-glow);
+    transition: all 0.5s var(--ease-out-expo);
+  }
+
+  .card-hover {
+    background: var(--color-cloud);
+    border-radius: 20px;
+    box-shadow: 
+      0 0 0 1px rgba(0, 0, 0, 0.03),
+      0 2px 4px rgba(0, 0, 0, 0.02),
+      0 8px 16px rgba(0, 0, 0, 0.04),
+      0 24px 48px rgba(0, 0, 0, 0.06),
+      0 0 80px var(--color-azure-glow);
+    transition: all 0.5s var(--ease-out-expo);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-8px) scale(1.01);
+    background: #F5F8FF;
+    box-shadow: 
+      0 0 0 1px rgba(0, 122, 255, 0.08),
+      0 4px 8px rgba(0, 0, 0, 0.04),
+      0 16px 32px rgba(0, 0, 0, 0.08),
+      0 32px 64px rgba(0, 0, 0, 0.1),
+      0 0 120px rgba(0, 122, 255, 0.2);
+  }
+
+  /* ========================================
+     Search Capsule - Breathing Light
+     ======================================== */
+  .search-capsule {
+    height: 64px;
+    border-radius: 9999px;
+    background: linear-gradient(180deg, #FAFBFC 0%, #FFFFFF 100%);
+    box-shadow: 
+      inset 0 2px 4px rgba(0, 0, 0, 0.04),
+      0 0 0 1px rgba(0, 0, 0, 0.06),
+      0 4px 12px rgba(0, 0, 0, 0.04);
+    transition: all 0.4s var(--ease-out-expo);
+  }
+
+  .search-capsule:focus-within {
+    box-shadow: 
+      inset 0 2px 4px rgba(0, 0, 0, 0.04),
+      0 0 0 2px var(--color-azure),
+      0 0 0 6px rgba(0, 122, 255, 0.15),
+      0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: scale(1.01);
+  }
+
+  /* ========================================
+     Buttons - Tactile & Responsive
+     ======================================== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    border-radius: 12px;
+    transition: all 0.3s var(--ease-out-expo);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary {
+    background: linear-gradient(180deg, #007AFF 0%, #0066DD 100%);
+    color: white;
+    box-shadow: 
+      0 0 0 1px rgba(0, 122, 255, 0.5),
+      0 4px 12px rgba(0, 122, 255, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 0 0 1px rgba(0, 122, 255, 0.5),
+      0 8px 24px rgba(0, 122, 255, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-secondary {
+    background: var(--color-cloud);
+    color: var(--color-ink);
+    box-shadow: 
+      0 0 0 1px rgba(0, 0, 0, 0.08),
+      0 2px 4px rgba(0, 0, 0, 0.04);
+  }
+
+  .btn-secondary:hover {
+    background: #F7F8FA;
+    box-shadow: 
+      0 0 0 1px rgba(0, 0, 0, 0.12),
+      0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  /* ========================================
+     Typography Scale - Dramatic Contrast
+     ======================================== */
+  .text-display {
+    font-size: clamp(48px, 8vw, 80px);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    color: var(--color-ink);
+  }
+
+  .text-headline {
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--color-ink);
+  }
+
+  .text-subhead {
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--color-slate);
+  }
+
+  .text-body {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--color-slate);
+  }
+
+  .text-caption {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: #9CA3AF;
+    text-transform: uppercase;
+  }
+
+  /* ========================================
+     Badge - Subtle & Refined
+     ======================================== */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  .badge-primary {
+    background: rgba(0, 122, 255, 0.1);
+    color: var(--color-azure);
+  }
+
+  .badge-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+  }
+}
+
+@layer utilities {
+  /* ========================================
+     Animation Utilities
+     ======================================== */
+  .animate-stagger-1 { animation-delay: 0.1s; }
+  .animate-stagger-2 { animation-delay: 0.2s; }
+  .animate-stagger-3 { animation-delay: 0.3s; }
+  .animate-stagger-4 { animation-delay: 0.4s; }
+  .animate-stagger-5 { animation-delay: 0.5s; }
+  .animate-stagger-6 { animation-delay: 0.6s; }
+  .animate-stagger-7 { animation-delay: 0.7s; }
+  .animate-stagger-8 { animation-delay: 0.8s; }
+
+  .ease-out-expo { transition-timing-function: var(--ease-out-expo); }
+  .ease-spring { transition-timing-function: var(--ease-spring); }
+
+  /* Hide scrollbar */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Text balance */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    background: linear-gradient(135deg, #007AFF 0%, #5856D6 50%, #007AFF 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* ========================================
+   Keyframe Animations - Life & Motion
+   ======================================== */
+
+/* Staggered fade in up */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s var(--ease-out-expo) forwards;
+  opacity: 0;
+}
+
+/* Scale in */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.6s var(--ease-out-expo) forwards;
+  opacity: 0;
+}
+
+/* Gentle float for decorative elements */
+@keyframes gentleFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(2deg);
+  }
+}
+
+.animate-gentle-float {
+  animation: gentleFloat 6s ease-in-out infinite;
+}
+
+/* Breathing glow */
+@keyframes breatheGlow {
+  0%, 100% {
+    box-shadow: 
+      0 0 0 1px rgba(0, 0, 0, 0.06),
+      0 4px 12px rgba(0, 0, 0, 0.04),
+      0 0 60px rgba(0, 122, 255, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 0 1px rgba(0, 122, 255, 0.1),
+      0 8px 24px rgba(0, 0, 0, 0.06),
+      0 0 80px rgba(0, 122, 255, 0.2);
+  }
+}
+
+.animate-breathe {
+  animation: breatheGlow 4s ease-in-out infinite;
+}
+
+/* Gradient shift */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  animation: gradientShift 8s ease infinite;
+  background-size: 200% 200%;
+}
+
+/* Shimmer for loading states */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #F7F8FA 25%, #FFFFFF 50%, #F7F8FA 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+/* Icon hover effect */
+@keyframes iconPop {
+  0% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.15) rotate(5deg); }
+  100% { transform: scale(1.1) rotate(3deg); }
+}
+
+.icon-hover:hover {
+  animation: iconPop 0.4s var(--ease-spring) forwards;
+}

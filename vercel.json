@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "npm run build --workspace @ones-marketplace/frontend",
+  "installCommand": "npm install",
+  "outputDirectory": "apps/frontend/.next",
+  "routes": [
+    { "src": "/api/plugins/(.*)", "dest": "/api/plugins/$1" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ]
+}
