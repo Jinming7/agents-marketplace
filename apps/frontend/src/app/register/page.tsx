@@ -11,35 +11,56 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setSuccess('')
     setLoading(true)
     
-    const res = await authApi.register(name, email, password)
-    
-    if (res.success && res.data) {
-      localStorage.setItem('token', res.data.token)
-      router.push('/my-apps')
-    } else {
-      setError(res.error || 'Registration failed')
+    try {
+      const res = await authApi.register(name, email, password)
+      
+      if (res.success && res.data) {
+        // Save token
+        localStorage.setItem('token', res.data.token)
+        localStorage.setItem('user', JSON.stringify(res.data.user))
+        
+        // Show success message
+        setSuccess('Registration successful! Redirecting...')
+        
+        // Redirect after short delay
+        setTimeout(() => {
+          router.push('/')
+          router.refresh()
+        }, 1000)
+      } else {
+        setError(res.error || 'Registration failed')
+      }
+    } catch (err) {
+      setError('Network error. Please try again.')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
+          <Link href="/" className="text-2xl font-bold text-blue-600">ONES Marketplace</Link>
+          <h1 className="text-3xl font-bold text-gray-900 mt-4">Create Account</h1>
           <p className="text-gray-500 mt-2">Join ONES Marketplace</p>
         </div>
         
         <div className="bg-white rounded-xl border p-8">
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">{error}</div>
+          )}
+          {success && (
+            <div className="mb-4 p-3 bg-green-50 text-green-600 rounded-lg text-sm">{success}</div>
           )}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -71,14 +92,15 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                placeholder="••••••••"
+                placeholder="At least 6 characters"
                 required
+                minLength={6}
               />
             </div>
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50"
+              className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 transition-colors"
             >
               {loading ? 'Creating account...' : 'Create Account'}
             </button>
