@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
-import { getDb, categories, marketplaceApps, eq, sql } from '@/lib/db'
+import { getDb, marketplaceCategories, marketplaceApps } from '@/lib/db'
 
 export async function GET() {
   try {
     const db = getDb()
     
-    // Get all categories
-    const allCategories = await db.select().from(categories)
+    // Get all categories from marketplace_categories table
+    const allCategories = await db.select().from(marketplaceCategories)
     
     // Get app count per category
     const apps = await db.select().from(marketplaceApps)
@@ -18,14 +18,24 @@ export async function GET() {
       }
     })
     
-    // Format response - add color for UI
+    // Icon mapping for UI
+    const iconMap: Record<string, string> = {
+      'users': '👥',
+      'check-circle': '✅',
+      'book': '📚',
+      'code': '💻',
+      'palette': '🎨',
+      'default': '📦'
+    }
+    
+    // Format response
     const formattedCategories = allCategories.map(cat => ({
       id: cat.id,
       name: cat.name,
-      slug: cat.slug,
+      slug: cat.name?.toLowerCase().replace(/\s+/g, '-'),
       description: cat.description,
-      icon: cat.icon || '📦',
-      count: categoryCount.get(cat.name) || 0,
+      icon: iconMap[cat.icon || ''] || iconMap['default'],
+      count: categoryCount.get(cat.name || '') || 0,
       color: 'from-blue-500 to-blue-600',
     }))
     
