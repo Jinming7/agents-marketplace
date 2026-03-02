@@ -31,7 +31,7 @@ export const appsApi = {
     const query = new URLSearchParams(params as Record<string, string>).toString()
     return request<any[]>(`/plugins${query ? `?${query}` : ''}`)
   },
-  get: (id: string) => request<any>(`/plugins/${id}`),
+  get: (id: string) => request<any>(`/app?id=${id}`),
   getReviews: (id: string) => request<any[]>(`/plugins/${id}/reviews`),
 }
 
