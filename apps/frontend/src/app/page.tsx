@@ -19,24 +19,15 @@ interface App {
 interface Category {
   id: string
   name: string
+  slug?: string
   icon: string
   count: number
   color?: string
 }
 
-const defaultCategories: Category[] = [
-  { id: 'all', name: 'All', icon: '🌐', count: 0 },
-  { id: 'project', name: 'Project Management', icon: '📁', count: 0 },
-  { id: 'automation', name: 'Automation', icon: '⚡', count: 0 },
-  { id: 'development', name: 'Development Tools', icon: '🔧', count: 0 },
-  { id: 'collaboration', name: 'Collaboration', icon: '🤝', count: 0 },
-  { id: 'reports', name: 'Reports', icon: '📊', count: 0 },
-  { id: 'security', name: 'Security', icon: '🛡️', count: 0 },
-]
-
 export default function HomePage() {
   const [apps, setApps] = useState<App[]>([])
-  const [categories, setCategories] = useState<Category[]>(defaultCategories)
+  const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -45,27 +36,58 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true)
-      const [appsRes, catRes] = await Promise.all([
-        appsApi.list(),
-        categoriesApi.list()
-      ])
-      if (appsRes.success && appsRes.data) setApps(appsRes.data)
-      if (catRes.success && catRes.data) setCategories(catRes.data)
+      try {
+        const [appsRes, catRes] = await Promise.all([
+          appsApi.list(),
+          categoriesApi.list()
+        ])
+        if (appsRes.success && appsRes.data) {
+          setApps(appsRes.data)
+        }
+        if (catRes.success && catRes.data) {
+          setCategories(catRes.data)
+        }
+      } catch (e) {
+        console.error('Failed to fetch data:', e)
+      }
       setLoading(false)
     }
     fetchData()
   }, [])
 
+  // Get selected category name for filtering
+  const selectedCategoryName = selectedCategory === 'all' 
+    ? null 
+    : categories.find(c => c.id === selectedCategory || c.slug === selectedCategory)?.name
+
   const filteredApps = apps
-    .filter(app => selectedCategory === 'all' || app.category.toLowerCase().includes(selectedCategory.toLowerCase()))
-    .filter(app => searchQuery === '' || app.name.toLowerCase().includes(searchQuery.toLowerCase()) || app.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter(app => {
+      if (selectedCategory === 'all') return true
+      if (!selectedCategoryName) return true
+      // Match by category name (case insensitive)
+      return app.category?.toLowerCase() === selectedCategoryName.toLowerCase()
+    })
+    .filter(app => {
+      if (!searchQuery) return true
+      const query = searchQuery.toLowerCase()
+      return app.name?.toLowerCase().includes(query) || 
+             app.description?.toLowerCase().includes(query)
+    })
     .sort((a, b) => {
       if (sortBy === 'rating') return b.rating - a.rating
       if (sortBy === 'name') return a.name.localeCompare(b.name)
       return b.downloads - a.downloads
     })
 
-  const featuredApps = apps.filter(app => app.featured)
+  const featuredApps = apps.filter(app => app.featured).slice(0, 4)
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="bg-gray-50">
@@ -117,34 +139,36 @@ export default function HomePage() {
       </section>
 
       {/* Featured Apps Section */}
-      <section className="max-w-7xl mx-auto px-4 py-12">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Featured Apps</h2>
-          <Link href="/featured" className="text-blue-600 hover:underline">View all →</Link>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredApps.map((app) => (
-            <Link
-              key={app.id}
-              href={`/apps/${app.id}`}
-              className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative group"
-            >
-              <div className="absolute top-3 left-3">
-                <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  ✨ SPOTLIGHT
-                </span>
-              </div>
-              <div className="text-4xl mb-4 mt-6">{app.icon}</div>
-              <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-blue-600">{app.name}</h3>
-              <p className="text-sm text-gray-500 line-clamp-2 mb-3">{app.description}</p>
-              <div className="flex items-center justify-between text-sm">
-                <span className="flex items-center gap-1 text-yellow-500">★★★★★ {app.rating}</span>
-                <span className="text-gray-400">{(app.downloads/1000).toFixed(1)}k</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+      {featuredApps.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 py-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Featured Apps</h2>
+            <Link href="/featured" className="text-blue-600 hover:underline">View all →</Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredApps.map((app) => (
+              <Link
+                key={app.id}
+                href={`/apps/${app.id}`}
+                className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative group"
+              >
+                <div className="absolute top-3 left-3">
+                  <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    ✨ SPOTLIGHT
+                  </span>
+                </div>
+                <div className="text-4xl mb-4 mt-6">{app.icon || '📦'}</div>
+                <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-blue-600">{app.name}</h3>
+                <p className="text-sm text-gray-500 line-clamp-2 mb-3">{app.description}</p>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-1 text-yellow-500">★ {app.rating?.toFixed(1)}</span>
+                  <span className="text-gray-400">{(app.downloads/1000).toFixed(1)}k</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Categories Section */}
       <section className="max-w-7xl mx-auto px-4 py-8">
@@ -156,11 +180,11 @@ export default function HomePage() {
               onClick={() => setSelectedCategory(cat.id)}
               className={`p-4 rounded-xl text-center transition-all duration-300 hover:scale-105 ${
                 selectedCategory === cat.id
-                  ? 'bg-gradient-to-br ' + cat.color + ' text-white shadow-lg'
+                  ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg'
                   : 'bg-white border border-gray-200 hover:border-gray-300'
               }`}
             >
-              <div className="text-3xl mb-2">{cat.icon}</div>
+              <div className="text-3xl mb-2">{cat.icon || '📦'}</div>
               <div className={`text-sm font-medium ${selectedCategory === cat.id ? 'text-white' : 'text-gray-700'}`}>
                 {cat.name}
               </div>
@@ -184,56 +208,63 @@ export default function HomePage() {
             onChange={(e) => setSortBy(e.target.value)}
             className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="installs">By Installs</option>
+            <option value="downloads">By Downloads</option>
             <option value="rating">By Rating</option>
             <option value="name">By Name</option>
           </select>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredApps.map((app) => (
-            <Link
-              key={app.id}
-              href={`/apps/${app.id}`}
-              className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
-            >
-              <div className="flex items-start gap-4">
-                <div className="relative">
-                  <div className="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center text-3xl">
-                    {app.icon}
-                  </div>
-                  {app.verified && (
-                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white">
-                      <span className="text-white text-xs">✓</span>
+        {filteredApps.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-4xl mb-4">🔍</div>
+            <p className="text-gray-500">No apps found. Try a different category or search term.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredApps.map((app) => (
+              <Link
+                key={app.id}
+                href={`/apps/${app.id}`}
+                className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="relative">
+                    <div className="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center text-3xl">
+                      {app.icon || '📦'}
                     </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                    {app.name}
-                  </h3>
-                  <p className="text-sm text-gray-500 line-clamp-2 mt-1">{app.description}</p>
-                </div>
-              </div>
-              
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                    {app.category}
-                  </span>
-                  <div className="flex items-center gap-4 text-sm">
-                    <span className="flex items-center gap-1 text-yellow-500">
-                      ★ {app.rating}
-                    </span>
-                    <span className="text-gray-400">
-                      {(app.downloads / 1000).toFixed(1)}k downloads
-                    </span>
+                    {app.verified && (
+                      <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white">
+                        <span className="text-white text-xs">✓</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                      {app.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 line-clamp-2 mt-1">{app.description}</p>
                   </div>
                 </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+                
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                      {app.category}
+                    </span>
+                    <div className="flex items-center gap-4 text-sm">
+                      <span className="flex items-center gap-1 text-yellow-500">
+                        ★ {app.rating?.toFixed(1)}
+                      </span>
+                      <span className="text-gray-400">
+                        {(app.downloads / 1000).toFixed(1)}k downloads
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Newsletter Section */}

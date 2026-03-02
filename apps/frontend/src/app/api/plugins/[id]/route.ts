@@ -3,10 +3,16 @@ import { getDb, marketplaceApps, marketplaceReviews, eq } from '@/lib/db'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const params = await context.params
+    const id = params.id
+    
+    if (!id) {
+      return NextResponse.json({ error: 'App ID is required' }, { status: 400 })
+    }
+    
     const db = getDb()
     
     // Get app by ID
@@ -33,26 +39,19 @@ export async function GET(
       description: app.description,
       summary: app.description?.substring(0, 150) + '...',
       category: app.categoryName,
-      installs: app.installs,
-      rating: app.rating,
+      downloads: app.installs || 0,
+      rating: parseFloat(app.rating || '0'),
+      reviews: reviews.length,
       version: app.version,
       developer: app.developer,
-      icon: app.icon,
-      featured: app.featured,
-      verified: app.verified,
-      pricing: app.pricing,
+      icon: app.icon || '📦',
+      featured: app.featured || false,
+      verified: app.verified || false,
+      pricing: app.pricing ? JSON.parse(app.pricing as string) : null,
       highlights: app.highlights,
       screenshots: app.screenshots,
-      compatibility: app.compatibility,
-      lastUpdated: app.lastUpdated,
-      reviews: reviews.map(r => ({
-        id: r.id,
-        userId: r.userId,
-        userName: r.userName,
-        rating: r.rating,
-        comment: r.comment,
-        createdAt: r.createdAt,
-      }))
+      features: app.highlights,
+      longDescription: app.description,
     }
     
     return NextResponse.json(formattedApp)
