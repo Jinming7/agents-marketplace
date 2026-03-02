@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/Header'
@@ -15,7 +15,12 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'ONES Marketplace - Enterprise App Store',
   description: 'Discover, install and manage enterprise apps for your ONES platform',
+}
+
+export const viewport: Viewport = {
   themeColor: '#ffffff',
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({
