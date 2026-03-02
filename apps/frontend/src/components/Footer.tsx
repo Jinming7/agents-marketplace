@@ -1,117 +1,185 @@
 import Link from 'next/link'
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear()
+
+  const footerLinks = {
+    marketplace: [
+      { label: 'Browse Apps', href: '/' },
+      { label: 'Featured', href: '/featured' },
+      { label: 'Categories', href: '/category/project-management' },
+      { label: 'Pricing', href: '/pricing' },
+    ],
+    developers: [
+      { label: 'Developer Portal', href: '/developers' },
+      { label: 'Documentation', href: '/docs' },
+      { label: 'API Reference', href: '#' },
+      { label: 'SDK', href: '#' },
+    ],
+    company: [
+      { label: 'About Us', href: '/about' },
+      { label: 'Blog', href: '#' },
+      { label: 'Careers', href: '#' },
+      { label: 'Contact', href: '/support' },
+    ],
+    legal: [
+      { label: 'Privacy Policy', href: '#' },
+      { label: 'Terms of Service', href: '#' },
+      { label: 'Cookie Policy', href: '#' },
+      { label: 'Security', href: '#' },
+    ],
+  }
+
+  const socialLinks = [
+    { label: 'Twitter', icon: '𝕏', href: '#' },
+    { label: 'LinkedIn', icon: 'in', href: '#' },
+    { label: 'GitHub', icon: '⌘', href: '#' },
+    { label: 'YouTube', icon: '▶', href: '#' },
+  ]
+
+  const trustBadges = [
+    { icon: '✓', label: 'SOC 2 Certified' },
+    { icon: '✓', label: 'GDPR Compliant' },
+    { icon: '✓', label: '99.9% Uptime' },
+    { icon: '✓', label: '24/7 Support' },
+  ]
+
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
-          {/* Brand */}
-          <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+    <footer className="bg-gray-950 text-gray-300">
+      {/* Main Footer */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-8 lg:gap-12">
+          {/* Brand Column */}
+          <div className="col-span-2">
+            <Link href="/" className="inline-flex items-center gap-3 mb-6 group">
+              <div className="relative w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-glow transition-shadow duration-300">
                 <span className="text-white font-bold text-xl">O</span>
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 to-transparent" />
               </div>
-              <span className="text-white font-bold text-xl">ONES</span>
-            </div>
-            <p className="text-sm text-gray-400 mb-4">
-              The enterprise app marketplace for modern teams.
+              <span className="text-white font-semibold text-xl tracking-tight">ONES</span>
+            </Link>
+            <p className="text-gray-400 text-sm leading-relaxed mb-6 max-w-xs">
+              The enterprise app marketplace for modern teams. Discover, install, and manage apps that transform how you work.
             </p>
-            <div className="flex gap-4">
-              <a href="#" className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 transition-colors">
-                <span>𝕏</span>
-              </a>
-              <a href="#" className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 transition-colors">
-                <span>in</span>
-              </a>
-              <a href="#" className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 transition-colors">
-                <span>▶</span>
-              </a>
-              <a href="#" className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 transition-colors">
-                <span>◆</span>
-              </a>
+            {/* Social Links */}
+            <div className="flex gap-3">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  className="w-10 h-10 bg-gray-800/50 hover:bg-gray-800 rounded-xl flex items-center justify-center text-gray-400 hover:text-white transition-all duration-200"
+                  aria-label={social.label}
+                >
+                  <span className="text-sm">{social.icon}</span>
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* Marketplace */}
+          {/* Links Columns */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Marketplace</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="/" className="hover:text-white">Browse Apps</Link></li>
-              <li><Link href="/featured" className="hover:text-white">Featured</Link></li>
-              <li><Link href="/category/project-management" className="hover:text-white">Categories</Link></li>
-              <li><Link href="/pricing" className="hover:text-white">Pricing</Link></li>
+            <h3 className="text-white font-semibold text-sm mb-4 tracking-wide uppercase">Marketplace</h3>
+            <ul className="space-y-3">
+              {footerLinks.marketplace.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-gray-400 hover:text-white transition-colors duration-200"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* For Developers */}
           <div>
-            <h3 className="text-white font-semibold mb-4">For Developers</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="/developers" className="hover:text-white">Developer Portal</Link></li>
-              <li><Link href="/docs" className="hover:text-white">Documentation</Link></li>
-              <li><a href="#" className="hover:text-white">API Reference</a></li>
-              <li><a href="#" className="hover:text-white">SDK</a></li>
+            <h3 className="text-white font-semibold text-sm mb-4 tracking-wide uppercase">Developers</h3>
+            <ul className="space-y-3">
+              {footerLinks.developers.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-gray-400 hover:text-white transition-colors duration-200"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Company */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Company</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="/about" className="hover:text-white">About Us</Link></li>
-              <li><a href="#" className="hover:text-white">Blog</a></li>
-              <li><a href="#" className="hover:text-white">Careers</a></li>
-              <li><Link href="/support" className="hover:text-white">Contact</Link></li>
+            <h3 className="text-white font-semibold text-sm mb-4 tracking-wide uppercase">Company</h3>
+            <ul className="space-y-3">
+              {footerLinks.company.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-gray-400 hover:text-white transition-colors duration-200"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Legal */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Legal</h3>
-            <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white">Terms of Service</a></li>
-              <li><a href="#" className="hover:text-white">Cookie Policy</a></li>
-              <li><a href="#" className="hover:text-white">Security</a></li>
+            <h3 className="text-white font-semibold text-sm mb-4 tracking-wide uppercase">Legal</h3>
+            <ul className="space-y-3">
+              {footerLinks.legal.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-gray-400 hover:text-white transition-colors duration-200"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
+      </div>
 
-        {/* Trust Badges */}
-        <div className="border-t border-gray-800 mt-8 pt-8">
-          <div className="flex flex-wrap justify-center gap-8 mb-8">
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-green-500">✓</span>
-              <span>SOC 2 Certified</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-green-500">✓</span>
-              <span>GDPR Compliant</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-green-500">✓</span>
-              <span>99.9% Uptime</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-green-500">✓</span>
-              <span>24/7 Support</span>
-            </div>
+      {/* Trust Badges */}
+      <div className="border-t border-gray-800/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-wrap justify-center gap-6 lg:gap-12">
+            {trustBadges.map((badge) => (
+              <div
+                key={badge.label}
+                className="flex items-center gap-2 text-sm text-gray-400"
+              >
+                <span className="text-success">{badge.icon}</span>
+                <span>{badge.label}</span>
+              </div>
+            ))}
           </div>
         </div>
+      </div>
 
-        {/* Bottom */}
-        <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-gray-500">
-            © 2024 ONES Marketplace. All rights reserved.
-          </p>
-          <div className="flex items-center gap-6 text-sm">
-            <a href="#" className="text-gray-400 hover:text-white">Status</a>
-            <a href="#" className="text-gray-400 hover:text-white">Sitemap</a>
-            <select className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm">
-              <option>English</option>
-              <option>中文</option>
-              <option>日本語</option>
-            </select>
+      {/* Bottom Bar */}
+      <div className="border-t border-gray-800/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-gray-500">
+              © {currentYear} ONES Marketplace. All rights reserved.
+            </p>
+            <div className="flex items-center gap-6">
+              <a href="#" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
+                Status
+              </a>
+              <a href="#" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
+                Sitemap
+              </a>
+              <select className="bg-gray-800/50 border border-gray-700/50 rounded-lg px-3 py-1.5 text-sm text-gray-400 focus:outline-none focus:border-gray-600 cursor-pointer">
+                <option>English</option>
+                <option>中文</option>
+                <option>日本語</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>

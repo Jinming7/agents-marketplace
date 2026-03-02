@@ -2,7 +2,7 @@ import postgres from 'postgres'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import bcrypt from 'bcryptjs'
 
-const DATABASE_URL = 'postgresql://postgres.nshivvjuaggohjovldfd:ONES-marketplace-2024@aws-1-ap-south-1.pooler.supabase.com:5432/postgres'
+const DATABASE_URL = 'postgresql://postgres.nshivvjuaggohjovldfd:pengjinming123@aws-1-ap-south-1.pooler.supabase.com:5432/postgres'
 
 async function test() {
   console.log('Testing database connection...')
