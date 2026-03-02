@@ -35,7 +35,7 @@ export async function GET() {
       ...formattedCategories
     ]
     
-    return NextResponse.json(result)
+    return NextResponse.json({ success: true, data: result })
   } catch (error) {
     console.error('Get categories error:', error)
     return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 })

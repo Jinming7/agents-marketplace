@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
       screenshots: app.screenshots,
     }))
     
-    return NextResponse.json(formattedApps)
+    return NextResponse.json({ success: true, data: formattedApps, total })
   } catch (error) {
     console.error('Get apps error:', error)
     return NextResponse.json({ error: 'Failed to fetch apps' }, { status: 500 })
