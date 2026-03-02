@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { getDb, users, eq } from '@/lib/db'
 
+export const dynamic = 'force-dynamic'
+
 const JWT_SECRET = process.env.JWT_SECRET || 'ones-marketplace-jwt-secret'
 
 export async function POST(request: NextRequest) {
