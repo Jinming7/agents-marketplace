@@ -1,4 +1,5 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
+// Use Next.js API routes (same origin, no CORS issues)
+const API_BASE = '/api'
 
 interface ApiResponse<T> {
   success: boolean
